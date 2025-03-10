@@ -141,9 +141,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-xl font-semibold mb-4">DailyVoiceGenie</h3>
-              <p className="text-sm text-gray-300">
-                Automated daily voicemail drops for businesses and sales teams.
-              </p>
+              <p className="text-sm text-gray-300">Automated daily voicemail drops for political fundraising teams.</p>
             </div>
             <div>
               <h4 className="font-medium mb-4">Product</h4>
