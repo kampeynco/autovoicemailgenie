@@ -1,4 +1,6 @@
 
+@import url('https://api.fontshare.com/v2/css?f[]=aspekta@400,500,600,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,25 +8,25 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 164 60% 7%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 164 60% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 221.2 83.2% 53.3%;
+    --popover-foreground: 164 60% 7%;
+    --primary: 164 100% 14%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
+    --secondary: 72 94% 72%;
+    --secondary-foreground: 164 60% 7%;
+    --muted: 60 9% 92%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 60 9% 92%;
+    --accent-foreground: 164 60% 7%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.75rem;
+    --ring: 164 100% 14%;
+    --radius: 0.5rem;
   }
 }
 
@@ -34,7 +36,12 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Aspekta', sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-primary;
   }
 }
 
@@ -60,3 +67,13 @@
 .hover-scale:hover {
   transform: scale(1.02);
 }
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80;
+}
+
+.bg-card-gradient {
+  background-color: #EBEDE8;
+  background-image: linear-gradient(180deg, rgba(235, 237, 232, 0.5) 0%, rgba(235, 237, 232, 1) 100%);
+}
+

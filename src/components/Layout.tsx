@@ -5,7 +5,9 @@ import {
   LayoutGrid, 
   Settings, 
   BarChart3, 
-  Plus 
+  MessageSquareText,
+  Calendar,
+  Users
 } from "lucide-react";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -13,22 +15,24 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutGrid },
-    { name: "Campaigns", href: "/campaigns", icon: Plus },
+    { name: "Campaigns", href: "/campaigns", icon: MessageSquareText },
+    { name: "Schedule", href: "/schedule", icon: Calendar },
+    { name: "Contacts", href: "/contacts", icon: Users },
     { name: "Reports", href: "/reports", icon: BarChart3 },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#EBEDE8]">
       {location.pathname === "/" ? (
         children
       ) : (
         <div className="flex h-screen overflow-hidden">
           <div className="hidden md:flex md:w-64 md:flex-col">
-            <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-white border-r">
+            <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-[#004838] border-r">
               <div className="px-4">
                 <Link to="/dashboard" className="flex items-center">
-                  <h1 className="text-xl font-bold text-primary">DailyVoiceGenie</h1>
+                  <h1 className="text-xl font-semibold text-white">DailyVoiceGenie</h1>
                 </Link>
               </div>
               <nav className="flex-1 px-2 mt-8 space-y-1">
@@ -41,8 +45,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                       className={cn(
                         "group flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors",
                         location.pathname === item.href
-                          ? "bg-primary text-white"
-                          : "text-gray-600 hover:bg-gray-50"
+                          ? "bg-[#073127] text-[#E2FB6C]"
+                          : "text-white hover:bg-[#073127] hover:text-[#E2FB6C]"
                       )}
                     >
                       <Icon className="w-5 h-5 mr-3" />
@@ -51,10 +55,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   );
                 })}
               </nav>
+              <div className="p-4 mt-auto mb-4">
+                <div className="rounded-md bg-[#073127] p-3 text-white text-xs">
+                  <p className="font-medium mb-1">Daily Drop Status</p>
+                  <p className="text-[#E2FB6C]">All systems operational</p>
+                </div>
+              </div>
             </div>
           </div>
           <div className="flex flex-col flex-1 overflow-hidden">
-            <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
+            <main className="flex-1 overflow-y-auto p-6 bg-[#EBEDE8]">
               <div className="max-w-7xl mx-auto fade-in">
                 {children}
               </div>
