@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Phone, Calendar, BarChart3, Zap, ArrowRight, CheckCircle } from "lucide-react";
@@ -125,7 +126,7 @@ const Index = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-semibold mb-8">Ready to boost your response rates?</h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto">
-              Get started with DailyVoiceGenie today and experience the power of automated voicemail drops.
+              Get started with Callback Engine today and experience the power of automated voicemail drops.
             </p>
             <Link to="/signup">
               <Button className="bg-[#E2FB6C] text-[#004838] hover:bg-[#E2FB6C]/90 hover-scale">
@@ -171,7 +172,7 @@ const Index = () => {
             </div>
           </div>
           <div className="border-t border-gray-700 mt-8 pt-8 text-sm text-gray-300">
-            <p>© 2024 DailyVoiceGenie. All rights reserved.</p>
+            <p>© 2024 Callback Engine. All rights reserved.</p>
           </div>
         </div>
       </footer>

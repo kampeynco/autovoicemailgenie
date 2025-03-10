@@ -32,7 +32,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-[#004838] border-r">
               <div className="px-4">
                 <Link to="/dashboard" className="flex items-center">
-                  <h1 className="text-xl font-semibold text-white">DailyVoiceGenie</h1>
+                  <h1 className="text-xl font-semibold text-white">Callback Engine</h1>
                 </Link>
               </div>
               <nav className="flex-1 px-2 mt-8 space-y-1">
