@@ -31,7 +31,7 @@ const Index = () => {
             <span className="text-[#004838]"> Voicemail Drops</span>
           </h1>
           <p className="max-w-2xl mx-auto mt-6 text-lg text-[#333F3C]">
-            Schedule recurring voicemail campaigns that deliver automatically. Reach more customers with less effort.
+            Schedule recurring voicemail campaigns for political fundraising. Reach more donors with less effort.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/signup">
@@ -48,21 +48,21 @@ const Index = () => {
         <div className="py-16 bg-[#EBEDE8]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-semibold text-center text-[#073127] mb-12">
-              Features designed for automated voicemail campaigns
+              Features designed for political fundraising campaigns
             </h2>
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
               {[{
               icon: Phone,
               title: "Automated Drops",
-              description: "Set up once, deliver daily voicemails to your contacts automatically."
+              description: "Set up once, deliver daily voicemails to potential donors automatically."
             }, {
               icon: Calendar,
               title: "Smart Scheduling",
-              description: "Choose optimal times for delivery based on timezone and industry."
+              description: "Choose optimal times for delivery based on timezone and donor demographics."
             }, {
               icon: BarChart3,
               title: "Detailed Analytics",
-              description: "Track delivery rates, callbacks, and conversion metrics."
+              description: "Track delivery rates, callbacks, and donation conversion metrics."
             }, {
               icon: Zap,
               title: "High Deliverability",
@@ -90,7 +90,7 @@ const Index = () => {
                   Why Choose Daily Voicemail Drops?
                 </h2>
                 <div className="space-y-4">
-                  {["Higher response rates than emails or texts", "Personal connection without interrupting their day", "Set-and-forget system saves hours of manual work", "Proven ROI for sales, collections, and reminders"].map((point, index) => <div key={index} className="flex items-start">
+                  {["Higher response rates than emails or texts", "Personal connection with potential donors", "Set-and-forget system saves campaign staff time", "Proven ROI for political fundraising efforts"].map((point, index) => <div key={index} className="flex items-start">
                       <CheckCircle className="h-6 w-6 text-[#004838] mr-2 flex-shrink-0 mt-0.5" />
                       <p className="text-[#333F3C]">{point}</p>
                     </div>)}
@@ -107,11 +107,11 @@ const Index = () => {
                 <div className="bg-[#EBEDE8] p-8 rounded-lg">
                   <h3 className="text-xl font-medium text-[#073127] mb-4">How It Works</h3>
                   <ol className="space-y-4 list-decimal list-inside text-[#333F3C]">
-                    <li>Upload your contact list or connect your CRM</li>
-                    <li>Record or upload your voicemail message</li>
+                    <li>Upload your donor contact list or connect your CRM</li>
+                    <li>Record or upload your fundraising message</li>
                     <li>Set your daily delivery schedule and rules</li>
                     <li>Our system automatically delivers your voicemails</li>
-                    <li>Track results and optimize your campaigns</li>
+                    <li>Track results and optimize your fundraising campaigns</li>
                   </ol>
                   <p className="mt-4 text-sm text-[#333F3C]">
                     Built on reliable DropCowboy API for industry-leading deliverability
@@ -124,9 +124,9 @@ const Index = () => {
 
         <div className="bg-[#004838] py-16 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-semibold mb-8">Ready to boost your response rates?</h2>
+            <h2 className="text-3xl font-semibold mb-8">Ready to boost your fundraising efforts?</h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto">
-              Get started with Callback Engine today and experience the power of automated voicemail drops.
+              Get started with Callback Engine today and experience the power of automated voicemail drops for political campaigns.
             </p>
             <Link to="/signup">
               <Button className="bg-[#E2FB6C] text-[#004838] hover:bg-[#E2FB6C]/90 hover-scale">
