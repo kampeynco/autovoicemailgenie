@@ -1,15 +1,12 @@
-
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Phone, Calendar, BarChart3, Zap, ArrowRight, CheckCircle } from "lucide-react";
-
 const Index = () => {
-  return (
-    <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-white">
       <header className="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <nav className="flex items-center justify-between">
           <div className="flex items-center">
-            <h1 className="text-2xl font-semibold text-[#004838]">DailyVoiceGenie</h1>
+            <h1 className="text-2xl font-semibold text-[#004838]">Callback Engine</h1>
           </div>
           <div className="flex items-center space-x-4">
             <Link to="/login">
@@ -53,29 +50,23 @@ const Index = () => {
               Features designed for automated voicemail campaigns
             </h2>
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-              {[
-                {
-                  icon: Phone,
-                  title: "Automated Drops",
-                  description: "Set up once, deliver daily voicemails to your contacts automatically.",
-                },
-                {
-                  icon: Calendar,
-                  title: "Smart Scheduling",
-                  description: "Choose optimal times for delivery based on timezone and industry.",
-                },
-                {
-                  icon: BarChart3,
-                  title: "Detailed Analytics",
-                  description: "Track delivery rates, callbacks, and conversion metrics.",
-                },
-                {
-                  icon: Zap,
-                  title: "High Deliverability",
-                  description: "Industry-leading delivery rates with DropCowboy integration.",
-                },
-              ].map((feature) => (
-                <div key={feature.title} className="relative p-6 bg-white rounded-lg shadow-sm hover-scale">
+              {[{
+              icon: Phone,
+              title: "Automated Drops",
+              description: "Set up once, deliver daily voicemails to your contacts automatically."
+            }, {
+              icon: Calendar,
+              title: "Smart Scheduling",
+              description: "Choose optimal times for delivery based on timezone and industry."
+            }, {
+              icon: BarChart3,
+              title: "Detailed Analytics",
+              description: "Track delivery rates, callbacks, and conversion metrics."
+            }, {
+              icon: Zap,
+              title: "High Deliverability",
+              description: "Industry-leading delivery rates with DropCowboy integration."
+            }].map(feature => <div key={feature.title} className="relative p-6 bg-white rounded-lg shadow-sm hover-scale">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-[#004838] mb-4">
                     <feature.icon className="w-6 h-6 text-[#E2FB6C]" />
                   </div>
@@ -85,8 +76,7 @@ const Index = () => {
                   <p className="mt-2 text-[#333F3C]">
                     {feature.description}
                   </p>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
         </div>
@@ -99,17 +89,10 @@ const Index = () => {
                   Why Choose Daily Voicemail Drops?
                 </h2>
                 <div className="space-y-4">
-                  {[
-                    "Higher response rates than emails or texts",
-                    "Personal connection without interrupting their day",
-                    "Set-and-forget system saves hours of manual work",
-                    "Proven ROI for sales, collections, and reminders"
-                  ].map((point, index) => (
-                    <div key={index} className="flex items-start">
+                  {["Higher response rates than emails or texts", "Personal connection without interrupting their day", "Set-and-forget system saves hours of manual work", "Proven ROI for sales, collections, and reminders"].map((point, index) => <div key={index} className="flex items-start">
                       <CheckCircle className="h-6 w-6 text-[#004838] mr-2 flex-shrink-0 mt-0.5" />
                       <p className="text-[#333F3C]">{point}</p>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
                 <div className="mt-8">
                   <Link to="/signup">
@@ -194,8 +177,6 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
