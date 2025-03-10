@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Phone, Calendar, BarChart3, Zap, ArrowRight, CheckCircle } from "lucide-react";
+
 const Index = () => {
   return <div className="min-h-screen bg-white">
       <header className="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -26,7 +27,7 @@ const Index = () => {
       <main>
         <div className="px-4 py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl font-semibold tracking-tight text-[#073127] sm:text-5xl md:text-6xl">
-            Skip Call Time,
+            Skip Call Time,<br/>
             <span className="text-[#004838]"> Get Same Results</span>
           </h1>
           <p className="max-w-2xl mx-auto mt-6 text-lg text-[#333F3C]">
@@ -177,4 +178,5 @@ const Index = () => {
       </footer>
     </div>;
 };
+
 export default Index;
