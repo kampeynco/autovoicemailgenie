@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { 
   getUserPhoneNumber, 
   getUserCalls, 
-  purchasePhoneNumber,
   formatPhoneNumber,
   useRealTimeCallbacks
 } from "@/services/twilioService";
@@ -14,10 +13,13 @@ import PhoneNumberCard from "@/components/callbacks/PhoneNumberCard";
 import CallbacksTabs from "@/components/callbacks/CallbacksTabs";
 import CallbacksLoading from "@/components/callbacks/CallbacksLoading";
 import CallbacksError from "@/components/callbacks/CallbacksError";
+import { usePhoneNumberPurchase } from "@/hooks/usePhoneNumberPurchase";
+import { CallWithRecording } from "@/types/twilio";
 
 const Callbacks: React.FC = () => {
   const queryClient = useQueryClient();
   const { subscribeToCallbacks } = useRealTimeCallbacks();
+  const { isPurchasing, purchasePhoneNumber } = usePhoneNumberPurchase();
   
   // Fetch phone number
   const { 
@@ -41,31 +43,6 @@ const Callbacks: React.FC = () => {
     queryFn: () => getUserCalls(50),
     enabled: !!phoneNumber,
   });
-  
-  // State for purchasing a phone number
-  const [isPurchasing, setIsPurchasing] = useState(false);
-  
-  // Handle phone number purchase
-  const handlePurchasePhoneNumber = async (areaCode?: string) => {
-    setIsPurchasing(true);
-    try {
-      await purchasePhoneNumber(areaCode);
-      toast({
-        title: "Phone number purchased!",
-        description: "You can now receive callbacks.",
-      });
-      await refetchPhoneNumber();
-    } catch (error: any) {
-      console.error('Error purchasing phone number:', error);
-      toast({
-        title: "Failed to purchase phone number",
-        description: error.message || "Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsPurchasing(false);
-    }
-  };
   
   // Set up real-time subscription
   useEffect(() => {
@@ -113,7 +90,7 @@ const Callbacks: React.FC = () => {
     return (
       <div className="container mx-auto px-4 py-8">
         <NoPhoneNumber 
-          onPurchase={handlePurchasePhoneNumber} 
+          onPurchase={purchasePhoneNumber} 
           isPurchasing={isPurchasing} 
         />
       </div>
