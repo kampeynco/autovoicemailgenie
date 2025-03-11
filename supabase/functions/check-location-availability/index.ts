@@ -71,6 +71,9 @@ serve(async (req: Request) => {
       );
     }
     
+    console.log(`Using Twilio account SID: ${accountSid.substring(0, 5)}...`);
+    console.log(`Environment: ${isDevelopment ? 'Development' : 'Production'}`);
+    
     // Prepare search parameters using URLSearchParams
     const searchParams = new URLSearchParams({
       Limit: '1',
@@ -91,19 +94,28 @@ serve(async (req: Request) => {
     const searchUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/AvailablePhoneNumbers/US/Local.json?${searchParams.toString()}`;
     console.log(`Search URL: ${searchUrl}`);
     
+    // Create Authorization header with base64 encoded credentials
+    const authHeader = 'Basic ' + btoa(`${accountSid}:${authToken}`);
+    console.log(`Auth header created (first 10 chars): ${authHeader.substring(0, 15)}...`);
+    
     // Search for available phone numbers
+    console.log('Sending request to Twilio API...');
     const searchResponse = await fetch(
       searchUrl,
       {
         headers: {
-          'Authorization': `Basic ${btoa(`${accountSid}:${authToken}`)}`,
+          'Authorization': authHeader,
         },
       }
     );
     
+    console.log(`Twilio API response status: ${searchResponse.status}`);
+    
     // Handle API error responses
     if (!searchResponse.ok) {
       const errorText = await searchResponse.text();
+      console.error(`Twilio API error response (${searchResponse.status}): ${errorText}`);
+      
       let errorData;
       try {
         errorData = JSON.parse(errorText);
@@ -111,10 +123,26 @@ serve(async (req: Request) => {
         errorData = { message: errorText };
       }
       
+      // Special handling for authentication errors
+      if (searchResponse.status === 401 || searchResponse.status === 403) {
+        console.error('Authentication failed with Twilio API - check your credentials');
+        return new Response(
+          JSON.stringify({ 
+            error: 'Authentication failed with phone provider API', 
+            details: errorData.message || 'Invalid credentials',
+            available: false 
+          }),
+          { 
+            status: searchResponse.status, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+      
       console.error('Error searching for phone numbers:', errorData);
       return new Response(
         JSON.stringify({ 
-          error: `Twilio API error: ${errorData.message || errorData.code || 'Unknown error'}`, 
+          error: `Phone provider API error: ${errorData.message || errorData.code || 'Unknown error'}`, 
           available: false 
         }),
         { 
@@ -124,6 +152,8 @@ serve(async (req: Request) => {
       );
     }
     
+    // Parse successful response
+    console.log('Successfully received response from Twilio API');
     const searchData = await searchResponse.json();
     const isAvailable = searchData.available_phone_numbers && 
                          searchData.available_phone_numbers.length > 0;
