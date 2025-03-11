@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSignUp } from "@/contexts/SignUpContext";
 import { useToast } from "@/components/ui/use-toast";
+import { Building, User } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -72,21 +73,52 @@ const CommitteeStep = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="committeeType">Committee Type</Label>
-          <Select 
-            value={data.committeeType} 
-            onValueChange={(value) => updateData({ committeeType: value as "organization" | "candidate" })}
-          >
-            <SelectTrigger id="committeeType" className="h-12">
-              <SelectValue placeholder="Select committee type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="organization">Organization</SelectItem>
-              <SelectItem value="candidate">Candidate</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div 
+              className={`border rounded-md p-4 cursor-pointer transition-all ${
+                data.committeeType === "organization" 
+                  ? "border-[#004838] bg-[#E3F1ED]" 
+                  : "border-gray-200 hover:border-[#004838]"
+              }`}
+              onClick={() => updateData({ committeeType: "organization" })}
+            >
+              <div className="flex items-start gap-3">
+                <div className="rounded-sm p-2 bg-[#004838] text-white">
+                  <Building className="h-6 w-6" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-[#073127]">Organization</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    For organizations, PACs, and committees
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div 
+              className={`border rounded-md p-4 cursor-pointer transition-all ${
+                data.committeeType === "candidate" 
+                  ? "border-[#004838] bg-[#E3F1ED]" 
+                  : "border-gray-200 hover:border-[#004838]"
+              }`}
+              onClick={() => updateData({ committeeType: "candidate" })}
+            >
+              <div className="flex items-start gap-3">
+                <div className="rounded-sm p-2 bg-[#004838] text-white">
+                  <User className="h-6 w-6" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-[#073127]">Candidate</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    For individual candidate committees
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         
         {data.committeeType === "organization" && (
