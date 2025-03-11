@@ -41,21 +41,29 @@ const VoicemailTab = () => {
     }
   };
 
+  // Check if we should show the empty state
+  const showEmptyState = !isLoading && !error && voicemails.length === 0;
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-medium text-[#073127]">Voicemail Messages</h2>
-        <Button 
-          onClick={handleAddNew}
-          className="bg-[#004838] hover:bg-[#003026]"
-        >
-          <Plus className="h-4 w-4 mr-2" /> Add New Voicemail
-        </Button>
-      </div>
+      {/* Only show header, description and first button if not in empty state */}
+      {!showEmptyState && (
+        <>
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg font-medium text-[#073127]">Voicemail Messages</h2>
+            <Button 
+              onClick={handleAddNew}
+              className="bg-[#004838] hover:bg-[#003026]"
+            >
+              <Plus className="h-4 w-4 mr-2" /> Add New Voicemail
+            </Button>
+          </div>
 
-      <p className="text-sm text-gray-500">
-        Manage your committee voicemail messages. You can have multiple voicemails and set one as the active message.
-      </p>
+          <p className="text-sm text-gray-500">
+            Manage your committee voicemail messages. You can have multiple voicemails and set one as the active message.
+          </p>
+        </>
+      )}
       
       {isLoading ? (
         <div className="py-8 text-center">
