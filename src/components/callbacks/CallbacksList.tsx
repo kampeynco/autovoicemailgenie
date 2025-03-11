@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { formatPhoneNumber } from "@/services/twilioService";
 import { CallWithRecording } from "@/types/twilio";
 import { formatDistanceToNow, format } from "date-fns";
@@ -27,8 +27,24 @@ const CallbacksList: React.FC<CallbacksListProps> = ({ calls }) => {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [audioElements, setAudioElements] = useState<Record<string, HTMLAudioElement>>({});
   
+  // Cleanup audio elements on unmount
+  useEffect(() => {
+    return () => {
+      // Pause and release all audio elements
+      Object.values(audioElements).forEach(audio => {
+        audio.pause();
+        audio.src = "";
+      });
+    };
+  }, [audioElements]);
+  
   // Handle play/pause
   const togglePlay = (callId: string, recordingUrl: string) => {
+    if (!recordingUrl) {
+      console.error("No recording URL provided");
+      return;
+    }
+    
     if (!audioElements[callId]) {
       // Create a new audio element if it doesn't exist
       const audio = new Audio(recordingUrl);
@@ -37,12 +53,21 @@ const CallbacksList: React.FC<CallbacksListProps> = ({ calls }) => {
         setPlayingId(null);
       };
       
+      audio.onerror = (e) => {
+        console.error("Audio playback error:", e);
+        setPlayingId(null);
+      };
+      
       setAudioElements(prev => ({
         ...prev,
         [callId]: audio
       }));
       
-      audio.play();
+      audio.play().catch(err => {
+        console.error("Failed to play audio:", err);
+        setPlayingId(null);
+      });
+      
       setPlayingId(callId);
     } else {
       const audio = audioElements[callId];
@@ -58,11 +83,27 @@ const CallbacksList: React.FC<CallbacksListProps> = ({ calls }) => {
         }
         
         // Play this audio
-        audio.play();
+        audio.play().catch(err => {
+          console.error("Failed to play audio:", err);
+          setPlayingId(null);
+        });
+        
         setPlayingId(callId);
       }
     }
   };
+  
+  if (!calls || calls.length === 0) {
+    return (
+      <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg">
+        <PhoneIncoming className="mx-auto h-12 w-12 text-gray-400" />
+        <h3 className="mt-4 text-lg font-medium text-gray-900">No callbacks found</h3>
+        <p className="mt-2 text-gray-500">
+          When supporters call your campaign number, their callbacks will appear here.
+        </p>
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-4">
@@ -87,7 +128,7 @@ const CallbacksList: React.FC<CallbacksListProps> = ({ calls }) => {
                 </div>
               </div>
               
-              {call.has_recording && call.recording && (
+              {call.has_recording && call.recording && call.recording.recording_url && (
                 <Button
                   variant="outline"
                   size="sm"

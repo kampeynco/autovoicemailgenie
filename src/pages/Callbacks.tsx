@@ -50,7 +50,7 @@ const Callbacks: React.FC = () => {
   
   // Fetch calls if phone number exists
   const { 
-    data: calls, 
+    data: calls = [], // Provide default empty array
     isLoading: isLoadingCalls,
     error: callsError,
     refetch: refetchCalls
@@ -64,16 +64,16 @@ const Callbacks: React.FC = () => {
   const [isPurchasing, setIsPurchasing] = useState(false);
   
   // Handle phone number purchase
-  const handlePurchasePhoneNumber = async () => {
+  const handlePurchasePhoneNumber = async (areaCode?: string) => {
     setIsPurchasing(true);
     try {
-      await purchasePhoneNumber();
+      await purchasePhoneNumber(areaCode);
       toast({
         title: "Phone number purchased!",
         description: "You can now receive callbacks.",
       });
-      refetchPhoneNumber();
-    } catch (error) {
+      await refetchPhoneNumber();
+    } catch (error: any) {
       console.error('Error purchasing phone number:', error);
       toast({
         title: "Failed to purchase phone number",
@@ -111,7 +111,11 @@ const Callbacks: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="bg-red-50 p-4 rounded-md mb-6">
           <h2 className="text-red-800 font-medium">Error</h2>
-          <p className="text-red-600">{phoneNumberError.message || "Failed to load phone number"}</p>
+          <p className="text-red-600">
+            {phoneNumberError instanceof Error 
+              ? phoneNumberError.message 
+              : "Failed to load phone number"}
+          </p>
           <Button onClick={() => refetchPhoneNumber()} className="mt-2">
             Try Again
           </Button>

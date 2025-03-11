@@ -4,10 +4,13 @@ import { PhoneNumber, Call, CallRecording, CallWithRecording } from "@/types/twi
 import { useAuth } from "@/contexts/AuthContext";
 
 export async function purchasePhoneNumber(areaCode?: string): Promise<PhoneNumber> {
+  // Ensure areaCode is not empty if provided
+  const validAreaCode = areaCode && areaCode.trim() !== '' ? areaCode.trim() : undefined;
+  
   // Call the edge function with authentication and optional area code
   const { data, error } = await supabase.functions.invoke('purchase-phone-number', {
     method: 'POST',
-    body: areaCode ? { areaCode } : {},
+    body: validAreaCode ? { areaCode: validAreaCode } : {},
   });
   
   if (error) {
