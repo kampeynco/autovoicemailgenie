@@ -34,6 +34,7 @@ const CandidateForm = ({
           value={candidateFirstName}
           onChange={(e) => updateData({ candidateFirstName: e.target.value })}
           className="h-12"
+          aria-required="true"
         />
       </div>
       
@@ -43,10 +44,17 @@ const CandidateForm = ({
           id="candidateMiddleInitial"
           placeholder="Enter middle initial"
           value={candidateMiddleInitial}
-          onChange={(e) => updateData({ candidateMiddleInitial: e.target.value })}
+          onChange={(e) => {
+            // Only allow a single character
+            if (e.target.value.length <= 1) {
+              updateData({ candidateMiddleInitial: e.target.value });
+            }
+          }}
           className="h-12"
           maxLength={1}
+          aria-describedby="middleInitialHint"
         />
+        <p id="middleInitialHint" className="text-xs text-gray-500">Optional. Single character only.</p>
       </div>
       
       <div className="space-y-2">
@@ -57,6 +65,7 @@ const CandidateForm = ({
           value={candidateLastName}
           onChange={(e) => updateData({ candidateLastName: e.target.value })}
           className="h-12"
+          aria-required="true"
         />
       </div>
       
@@ -70,7 +79,7 @@ const CandidateForm = ({
             <SelectValue placeholder="Select suffix (optional)" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">None</SelectItem>
+            <SelectItem value="none">None</SelectItem>
             <SelectItem value="Jr.">Jr.</SelectItem>
             <SelectItem value="Sr.">Sr.</SelectItem>
             <SelectItem value="I">I</SelectItem>

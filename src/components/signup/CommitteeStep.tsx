@@ -5,11 +5,13 @@ import { useToast } from "@/components/ui/use-toast";
 import CommitteeTypeSelection from "./committees/CommitteeTypeSelection";
 import CandidateForm from "./committees/CandidateForm";
 import OrganizationForm from "./committees/OrganizationForm";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
 const CommitteeStep = () => {
   const { data, updateData, nextStep, prevStep } = useSignUp();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Debugging: log current committee type on mount and when it changes
   useEffect(() => {
@@ -18,6 +20,7 @@ const CommitteeStep = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
     // Validation
     if (!data.committeeType) {
@@ -26,6 +29,7 @@ const CommitteeStep = () => {
         description: "Please select a committee type",
         variant: "destructive",
       });
+      setIsSubmitting(false);
       return;
     }
 
@@ -35,6 +39,7 @@ const CommitteeStep = () => {
         description: "Please enter the organization name",
         variant: "destructive",
       });
+      setIsSubmitting(false);
       return;
     }
 
@@ -45,12 +50,17 @@ const CommitteeStep = () => {
           description: "Please enter the candidate's first and last name",
           variant: "destructive",
         });
+        setIsSubmitting(false);
         return;
       }
     }
 
-    // Move to next step
-    nextStep();
+    // Simulate a slight delay for better UX
+    setTimeout(() => {
+      setIsSubmitting(false);
+      // Move to next step
+      nextStep();
+    }, 500);
   };
 
   return (
@@ -73,7 +83,7 @@ const CommitteeStep = () => {
             candidateFirstName={data.candidateFirstName}
             candidateMiddleInitial={data.candidateMiddleInitial}
             candidateLastName={data.candidateLastName}
-            candidateSuffix={data.candidateSuffix || ""}
+            candidateSuffix={data.candidateSuffix || "none"}
             updateData={updateData}
           />
         )}
@@ -84,14 +94,21 @@ const CommitteeStep = () => {
             variant="outline"
             className="w-1/2 h-12"
             onClick={prevStep}
+            disabled={isSubmitting}
           >
             Back
           </Button>
           <Button 
             type="submit" 
             className="w-1/2 h-12 bg-[#004838] hover:bg-[#003026]"
+            disabled={isSubmitting}
           >
-            Next
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : "Next"}
           </Button>
         </div>
       </div>

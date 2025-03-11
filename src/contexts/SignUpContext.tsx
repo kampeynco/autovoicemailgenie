@@ -38,7 +38,7 @@ const defaultSignUpData: SignUpData = {
   candidateFirstName: "",
   candidateMiddleInitial: "",
   candidateLastName: "",
-  candidateSuffix: "",
+  candidateSuffix: "none",
   voicemailPath: "",
 };
 
