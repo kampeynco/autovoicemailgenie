@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useSignUp } from "@/contexts/SignUpContext";
@@ -9,10 +10,12 @@ import FileUploadUI from "./FileUploadUI";
 import AudioDisplay from "./AudioDisplay";
 import { Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 interface VoicemailStepProps {
   onComplete: () => Promise<void>;
   isSubmitting: boolean;
 }
+
 const VoicemailStep = ({
   onComplete,
   isSubmitting
@@ -34,6 +37,7 @@ const VoicemailStep = ({
     stopRecording,
     clearRecording
   } = useVoicemailRecorder();
+
   const handleFileSelected = (file: File) => {
     // Check if file is of the right type
     const acceptedTypes = ['audio/mpeg', 'audio/wav', 'audio/x-aiff'];
@@ -48,9 +52,11 @@ const VoicemailStep = ({
     setUploadedFile(file);
     clearRecording(); // Clear any recorded audio
   };
+
   const clearFile = () => {
     setUploadedFile(null);
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -106,6 +112,7 @@ const VoicemailStep = ({
       setIsUploading(false);
     }
   };
+
   return <form onSubmit={handleSubmit}>
       <div className="space-y-6">
         <div className="text-center">
@@ -118,7 +125,6 @@ const VoicemailStep = ({
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
                   <p className="text-left">Voicemails should be no more than 30 seconds.</p>
-                  <p>Accepted file types: MP3, WAV, or AIFF.</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -134,6 +140,7 @@ const VoicemailStep = ({
                 <RecordingUI isRecording={isRecording} onStartRecording={startRecording} onStopRecording={stopRecording} />
                 <p className="text-sm text-gray-500">Or</p>
                 <FileUploadUI onFileSelected={handleFileSelected} />
+                <p className="text-xs text-gray-500 mt-2">Accepted file types: MP3, WAV, or AIFF.</p>
               </div>}
             
             <AudioDisplay blob={recordedBlob} file={uploadedFile} onClearRecording={clearRecording} onClearFile={clearFile} />
@@ -151,4 +158,5 @@ const VoicemailStep = ({
       </div>
     </form>;
 };
+
 export default VoicemailStep;
