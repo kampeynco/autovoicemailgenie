@@ -103,13 +103,18 @@ const Callbacks: React.FC = () => {
         {/* Phone Number Card */}
         <PhoneNumberCard phoneNumber={phoneNumber} />
         
-        {/* Callbacks Tabs */}
-        <CallbacksTabs
-          calls={calls}
-          isLoading={isLoadingCalls}
-          error={callsError}
-          onRefetch={refetchCalls}
-        />
+        {/* Show loading state when fetching calls */}
+        {isLoadingCalls ? (
+          <CallbacksLoading />
+        ) : (
+          /* Callbacks Tabs */
+          <CallbacksTabs
+            calls={calls}
+            isLoading={isLoadingCalls}
+            error={callsError}
+            onRefetch={refetchCalls}
+          />
+        )}
       </div>
     </div>
   );
