@@ -9,13 +9,6 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Phone, Check, X, Loader2 } from "lucide-react";
 import { PhoneNumber } from "@/types/twilio";
@@ -30,31 +23,29 @@ const NoPhoneNumber: React.FC<NoPhoneNumberProps> = ({
   onPurchase, 
   isPurchasing 
 }) => {
-  const [selectedAreaCode, setSelectedAreaCode] = useState<string>("415");
-  const [customAreaCode, setCustomAreaCode] = useState<string>("");
-  const [isCustom, setIsCustom] = useState<boolean>(false);
+  const [areaCode, setAreaCode] = useState<string>("");
   const [isChecking, setIsChecking] = useState<boolean>(false);
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   
-  const handleAreaCodeChange = (value: string) => {
-    if (value === "custom") {
-      setIsCustom(true);
-      setIsAvailable(null);
-    } else {
-      setIsCustom(false);
-      setSelectedAreaCode(value);
+  const handleAreaCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').substring(0, 3);
+    setAreaCode(value);
+    
+    if (value.length === 3) {
       checkAvailability(value);
+    } else {
+      setIsAvailable(null);
     }
   };
   
-  const checkAvailability = async (areaCode: string) => {
-    if (!areaCode || areaCode.length !== 3) return;
+  const checkAvailability = async (code: string) => {
+    if (!code || code.length !== 3) return;
     
     setIsChecking(true);
     setIsAvailable(null);
     
     try {
-      const available = await checkAreaCodeAvailability(areaCode);
+      const available = await checkAreaCodeAvailability(code);
       setIsAvailable(available);
     } catch (error) {
       console.error("Error checking availability:", error);
@@ -64,29 +55,9 @@ const NoPhoneNumber: React.FC<NoPhoneNumberProps> = ({
     }
   };
   
-  const handleCustomAreaCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '').substring(0, 3);
-    setCustomAreaCode(value);
-    
-    if (value.length === 3) {
-      setSelectedAreaCode(value);
-      checkAvailability(value);
-    } else {
-      setIsAvailable(null);
-    }
-  };
-  
   const handlePurchase = () => {
-    const areaCode = isCustom ? customAreaCode : selectedAreaCode;
     onPurchase(areaCode);
   };
-  
-  // Check initial area code availability
-  useEffect(() => {
-    if (selectedAreaCode && !isCustom) {
-      checkAvailability(selectedAreaCode);
-    }
-  }, []);
   
   return (
     <Card className="max-w-2xl mx-auto">
@@ -104,45 +75,19 @@ const NoPhoneNumber: React.FC<NoPhoneNumberProps> = ({
       <CardContent>
         <div className="space-y-4">
           <div>
-            <p className="text-sm text-gray-700 mb-2">Choose an area code</p>
-            <Select 
-              value={isCustom ? "custom" : selectedAreaCode} 
-              onValueChange={handleAreaCodeChange}
-            >
-              <SelectTrigger className="w-full md:w-[200px]">
-                <SelectValue placeholder="Select area code" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="415">San Francisco (415)</SelectItem>
-                <SelectItem value="212">New York (212)</SelectItem>
-                <SelectItem value="202">Washington DC (202)</SelectItem>
-                <SelectItem value="213">Los Angeles (213)</SelectItem>
-                <SelectItem value="312">Chicago (312)</SelectItem>
-                <SelectItem value="617">Boston (617)</SelectItem>
-                <SelectItem value="512">Austin (512)</SelectItem>
-                <SelectItem value="custom">Enter custom area code</SelectItem>
-              </SelectContent>
-            </Select>
+            <p className="text-sm text-gray-700 mb-2">Enter your preferred area code:</p>
+            <Input
+              type="text"
+              value={areaCode}
+              onChange={handleAreaCodeChange}
+              className="w-full md:w-[200px]"
+              placeholder="e.g. 415"
+              maxLength={3}
+            />
           </div>
           
-          {isCustom && (
-            <div>
-              <p className="text-sm text-gray-700 mb-2">Enter your preferred area code:</p>
-              <div className="flex items-center space-x-2">
-                <Input
-                  type="text"
-                  value={customAreaCode}
-                  onChange={handleCustomAreaCodeChange}
-                  className="w-full md:w-[200px]"
-                  placeholder="e.g. 555"
-                  maxLength={3}
-                />
-              </div>
-            </div>
-          )}
-          
           {/* Availability indicator */}
-          {selectedAreaCode && selectedAreaCode.length === 3 && (
+          {areaCode && areaCode.length === 3 && (
             <div className="flex items-center space-x-2">
               {isChecking ? (
                 <div className="flex items-center text-sm text-gray-500">
@@ -152,12 +97,12 @@ const NoPhoneNumber: React.FC<NoPhoneNumberProps> = ({
               ) : isAvailable === true ? (
                 <div className="flex items-center text-sm text-green-600">
                   <Check className="h-4 w-4 mr-2" />
-                  Area code {selectedAreaCode} is available
+                  Area code {areaCode} is available
                 </div>
               ) : isAvailable === false ? (
                 <div className="flex items-center text-sm text-red-600">
                   <X className="h-4 w-4 mr-2" />
-                  Area code {selectedAreaCode} is not available
+                  Area code {areaCode} is not available
                 </div>
               ) : null}
             </div>
@@ -174,7 +119,7 @@ const NoPhoneNumber: React.FC<NoPhoneNumberProps> = ({
       <CardFooter>
         <Button 
           onClick={handlePurchase} 
-          disabled={isPurchasing || (isAvailable === false && !isCustom)}
+          disabled={isPurchasing || (isAvailable === false && areaCode.length === 3)}
           className="w-full"
         >
           {isPurchasing ? (
