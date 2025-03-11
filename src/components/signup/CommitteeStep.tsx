@@ -76,7 +76,7 @@ const CommitteeStep = () => {
       <div className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="committeeType">Committee Type</Label>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col space-y-4">
             <div 
               className={`border rounded-md p-4 cursor-pointer transition-all ${
                 data.committeeType === "organization" 
