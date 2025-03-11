@@ -100,9 +100,7 @@ const SignUp = () => {
           <h1 className="font-semibold text-white text-4xl">Callback Engine</h1>
         </div>
         <h2 className="text-4xl font-bold mb-4">Create an account</h2>
-        <p className="text-lg mb-12">
-          Join Callback Engine to streamline your campaign voicemail drops and reach more donors with less effort.
-        </p>
+        <p className="text-lg mb-12">Join Callback Engine to skip endless fundraising calls and reach more donors with less effort.</p>
         <div>
           <p className="text-white/90">
             Already have an account?{" "}
