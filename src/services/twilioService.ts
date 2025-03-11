@@ -41,6 +41,8 @@ export async function purchasePhoneNumber(locationCode?: string, searchType?: st
     }
   }
   
+  console.log('Calling purchase-phone-number with params:', requestBody);
+  
   // Call the edge function with authentication and optional parameters
   const { data, error } = await supabase.functions.invoke('purchase-phone-number', {
     method: 'POST',
@@ -54,8 +56,15 @@ export async function purchasePhoneNumber(locationCode?: string, searchType?: st
     let errorMessage = error.message || 'Failed to purchase phone number';
     
     // If we have response data with an error message, use that instead
-    if (error.context && error.context.message) {
-      errorMessage = error.context.message;
+    if (typeof error === 'object' && error !== null) {
+      if ('context' in error && error.context && typeof error.context === 'object') {
+        const contextObj = error.context as Record<string, unknown>;
+        if ('message' in contextObj && typeof contextObj.message === 'string') {
+          errorMessage = contextObj.message;
+        }
+      } else if ('details' in error && typeof error.details === 'string') {
+        errorMessage = error.details;
+      }
     }
     
     throw new Error(errorMessage);

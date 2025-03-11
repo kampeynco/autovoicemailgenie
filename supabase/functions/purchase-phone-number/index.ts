@@ -16,6 +16,8 @@ import {
 
 // Main handler function
 serve(async (req: Request) => {
+  console.log(`Received ${req.method} request to purchase-phone-number function`);
+  
   // Handle CORS preflight requests
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
@@ -25,6 +27,8 @@ serve(async (req: Request) => {
     const body = await parseRequestBody(req);
     const areaCode = body && (body as any).areaCode;
     const zipCode = body && (body as any).zipCode;
+    
+    console.log(`Request parameters - Area Code: ${areaCode || 'None'}, Zip Code: ${zipCode || 'None'}`);
     
     // Get JWT token from the authorization header
     const authHeader = req.headers.get('Authorization');
@@ -52,12 +56,18 @@ serve(async (req: Request) => {
     }
     
     // Get Twilio credentials
-    const credentials = getTwilioCredentials();
-    console.log('Got Twilio credentials');
+    let credentials;
+    try {
+      credentials = getTwilioCredentials();
+      console.log('Got Twilio credentials');
+    } catch (error) {
+      console.error('Error getting Twilio credentials:', error);
+      return createErrorResponse('Failed to get Twilio credentials', 500);
+    }
     
     // Get base URL for webhook endpoints
     const webhookBaseUrl = Deno.env.get('FUNCTION_BASE_URL') || 
-      `https://${supabaseUrl.replace('https://', '')}/functions/v1`;
+      `https://${supabaseUrl.replace('https://', '').split('.')[0]}.supabase.co/functions/v1`;
     
     console.log(`Using webhook base URL: ${webhookBaseUrl}`);
     
@@ -77,7 +87,7 @@ serve(async (req: Request) => {
     try {
       console.log(`Purchasing phone number: ${phoneNumber}`);
       phoneData = await purchasePhoneNumber(credentials, phoneNumber, user.id, webhookBaseUrl);
-      console.log(`Successfully purchased phone number`);
+      console.log(`Successfully purchased phone number from Twilio`);
     } catch (error) {
       console.error('Error purchasing phone number:', error);
       return createErrorResponse(error.message, 500);
@@ -102,6 +112,6 @@ serve(async (req: Request) => {
     
   } catch (error) {
     console.error('Error purchasing phone number:', error);
-    return createErrorResponse(error.message);
+    return createErrorResponse(error.message || 'An unknown error occurred');
   }
 });
