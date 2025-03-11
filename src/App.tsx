@@ -26,9 +26,12 @@ const App = () => (
             <Toaster />
             <Sonner />
             <Routes>
-              <Route path="/" element={<Layout><Index /></Layout>} />
+              {/* Public routes without sidebar layout */}
+              <Route path="/" element={<Index />} />
               <Route path="/auth/signin" element={<SignIn />} />
               <Route path="/auth/signup" element={<SignUp />} />
+              
+              {/* Protected routes with sidebar layout */}
               <Route 
                 path="/dashboard" 
                 element={
@@ -37,7 +40,9 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
-              <Route path="*" element={<Layout><NotFound /></Layout>} />
+              
+              {/* Not found page - no sidebar needed */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </SignUpProvider>
         </AuthProvider>
