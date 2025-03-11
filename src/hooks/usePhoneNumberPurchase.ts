@@ -18,14 +18,18 @@ export function usePhoneNumberPurchase() {
   const queryClient = useQueryClient();
   
   /**
-   * Purchase a phone number with optional area code
-   * @param areaCode Optional area code for the phone number
+   * Purchase a phone number with optional location code
+   * @param locationCode Optional area code or zip code for the phone number
+   * @param searchType Type of search (areaCode or zipCode)
    * @returns Promise with the purchased phone number
    */
-  const handlePurchasePhoneNumber = async (areaCode?: string): Promise<PhoneNumber | null> => {
+  const handlePurchasePhoneNumber = async (
+    locationCode?: string, 
+    searchType: string = "areaCode"
+  ): Promise<PhoneNumber | null> => {
     setIsPurchasing(true);
     try {
-      const newPhoneNumber = await purchasePhoneNumber(areaCode);
+      const newPhoneNumber = await purchasePhoneNumber(locationCode, searchType);
       toast({
         title: "Phone number purchased!",
         description: "You can now receive callbacks.",

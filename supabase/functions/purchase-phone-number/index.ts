@@ -91,9 +91,11 @@ function getTwilioCredentials() {
   };
 }
 
-// Search for available phone numbers with optional area code
-async function searchAvailablePhoneNumbers(credentials: { accountSid: string, authToken: string }, areaCode?: string) {
+// Search for available phone numbers with location parameters
+async function searchAvailablePhoneNumbers(credentials: { accountSid: string, authToken: string }, 
+                                           params: { areaCode?: string, zipCode?: string }) {
   const { accountSid, authToken } = credentials;
+  const { areaCode, zipCode } = params;
   
   // Prepare search URL
   let searchUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/AvailablePhoneNumbers/US/Local.json?Limit=1&VoiceEnabled=true`;
@@ -102,6 +104,12 @@ async function searchAvailablePhoneNumbers(credentials: { accountSid: string, au
   if (areaCode) {
     searchUrl += `&AreaCode=${areaCode}`;
     console.log(`Searching for phone numbers with area code: ${areaCode}`);
+  }
+  
+  // Add zip code to search if provided
+  if (zipCode) {
+    searchUrl += `&InPostalCode=${zipCode}`;
+    console.log(`Searching for phone numbers with postal code: ${zipCode}`);
   }
   
   // Search for available phone numbers
@@ -124,9 +132,13 @@ async function searchAvailablePhoneNumbers(credentials: { accountSid: string, au
   const searchData = await searchResponse.json();
   
   if (!searchData.available_phone_numbers || searchData.available_phone_numbers.length === 0) {
-    throw new Error(areaCode 
-      ? `No phone numbers available with area code ${areaCode}` 
-      : 'No phone numbers available');
+    let errorMessage = 'No phone numbers available';
+    if (areaCode) {
+      errorMessage = `No phone numbers available with area code ${areaCode}`;
+    } else if (zipCode) {
+      errorMessage = `No phone numbers available with zip code ${zipCode}`;
+    }
+    throw new Error(errorMessage);
   }
   
   return searchData.available_phone_numbers[0].phone_number;
@@ -218,9 +230,10 @@ serve(async (req: Request) => {
   if (corsResponse) return corsResponse;
 
   try {
-    // Parse request body to get the area code if provided
+    // Parse request body to get the location parameters
     const body = await parseRequestBody(req);
     const areaCode = body && (body as any).areaCode;
+    const zipCode = body && (body as any).zipCode;
     
     // Get JWT token from the authorization header
     const authHeader = req.headers.get('Authorization');
@@ -249,10 +262,10 @@ serve(async (req: Request) => {
     const webhookBaseUrl = Deno.env.get('FUNCTION_BASE_URL') || 
       `https://${supabaseUrl.replace('https://', '')}/functions/v1`;
     
-    // Search for available phone numbers
+    // Search for available phone numbers with provided parameters
     let phoneNumber;
     try {
-      phoneNumber = await searchAvailablePhoneNumbers(credentials, areaCode);
+      phoneNumber = await searchAvailablePhoneNumbers(credentials, { areaCode, zipCode });
     } catch (error) {
       return createErrorResponse(error.message, 404);
     }

@@ -1,0 +1,7 @@
+
+{
+  "name": "check-location-availability",
+  "version": "1.0.0",
+  "description": "Checks if phone numbers are available with a specific area code or zip code",
+  "main": "index.ts"
+}
