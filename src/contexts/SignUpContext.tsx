@@ -18,6 +18,7 @@ interface SignUpData {
   
   // Step 3: Voicemail
   voicemailPath: string;
+  voicemailFile: File | null;
 }
 
 interface SignUpContextType {
@@ -40,6 +41,7 @@ const defaultSignUpData: SignUpData = {
   candidateLastName: "",
   candidateSuffix: "none",
   voicemailPath: "",
+  voicemailFile: null
 };
 
 const SignUpContext = createContext<SignUpContextType | undefined>(undefined);

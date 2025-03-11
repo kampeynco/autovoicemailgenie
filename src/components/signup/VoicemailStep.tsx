@@ -69,47 +69,26 @@ const VoicemailStep = ({
       });
       return;
     }
+    
     try {
       setIsUploading(true);
 
-      // Prepare the file to upload
+      // Prepare the file to upload, but don't upload yet
       const fileToUpload = uploadedFile || new File([recordedBlob!], 'voicemail.webm', {
         type: recordedBlob!.type
       });
 
-      // Generate a unique filename
-      const fileName = `voicemail_${Date.now()}.${fileToUpload.name.split('.').pop()}`;
-
-      // Upload to Supabase Storage with explicit options
-      const {
-        data: uploadData,
-        error
-      } = await supabase.storage.from('voicemails').upload(fileName, fileToUpload, {
-        cacheControl: '3600',
-        upsert: false
-      });
-      
-      if (error) {
-        console.error("Storage upload error:", error);
-        throw new Error(error.message);
-      }
-
-      // Get the public URL
-      const {
-        data: pathData
-      } = supabase.storage.from('voicemails').getPublicUrl(fileName);
-
-      // Update the sign up context with the file path
+      // Store the file in the context to be uploaded after user creation
       updateData({
-        voicemailPath: pathData.publicUrl
+        voicemailFile: fileToUpload
       });
 
-      // Complete sign up
+      // Complete sign up (this will create user first, then handle the upload)
       await onComplete();
     } catch (error: any) {
-      console.error("Upload error:", error);
+      console.error("Form submission error:", error);
       toast({
-        title: "Upload Failed",
+        title: "Sign Up Failed",
         description: error.message,
         variant: "destructive"
       });

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import AccountStep from "@/components/signup/AccountStep";
 import CommitteeStep from "@/components/signup/CommitteeStep";
 import VoicemailStep from "@/components/signup/VoicemailStep";
-import { Eye, EyeOff } from "lucide-react";
+
 const SignUp = () => {
   const {
     signUp
@@ -39,7 +40,7 @@ const SignUp = () => {
   const handleComplete = async () => {
     setIsSubmitting(true);
     try {
-      // Register user
+      // 1. Register user first
       const {
         user,
         error
@@ -47,7 +48,7 @@ const SignUp = () => {
       if (error) throw error;
       if (!user) throw new Error("Failed to create user account");
 
-      // Create committee record
+      // 2. Create committee record
       const committeeData = {
         user_id: user.id,
         type: data.committeeType,
@@ -62,14 +63,40 @@ const SignUp = () => {
       } = await supabase.from("committees").insert(committeeData);
       if (committeeError) throw committeeError;
 
-      // Create voicemail record
-      const {
-        error: voicemailError
-      } = await supabase.from("voicemails").insert({
-        user_id: user.id,
-        file_path: data.voicemailPath
-      });
-      if (voicemailError) throw voicemailError;
+      // 3. Upload the voicemail file only after user is created
+      if (data.voicemailFile) {
+        // Generate a unique filename
+        const fileName = `${user.id}/voicemail_${Date.now()}.${data.voicemailFile.name.split('.').pop()}`;
+        
+        // Upload to Supabase Storage with explicit options
+        const {
+          data: uploadData,
+          error: uploadError
+        } = await supabase.storage.from('voicemails').upload(fileName, data.voicemailFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+        
+        if (uploadError) {
+          console.error("Storage upload error:", uploadError);
+          throw uploadError;
+        }
+
+        // Get the public URL
+        const {
+          data: pathData
+        } = supabase.storage.from('voicemails').getPublicUrl(fileName);
+
+        // 4. Create voicemail record with the file path
+        const {
+          error: voicemailError
+        } = await supabase.from("voicemails").insert({
+          user_id: user.id,
+          file_path: pathData.publicUrl
+        });
+        
+        if (voicemailError) throw voicemailError;
+      }
 
       // Reset sign up data
       resetData();
