@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { PhoneNumber, Call, CallRecording, CallWithRecording } from "@/types/twilio";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,6 +30,17 @@ export async function getUserPhoneNumber(): Promise<PhoneNumber | null> {
   }
   
   // Transform the data to match the PhoneNumber interface
+  // First, safely extract capabilities as an object
+  let capabilitiesObj = { voice: true, sms: false };
+  
+  // Check if capabilities is an object (not a string)
+  if (data.capabilities && typeof data.capabilities === 'object') {
+    capabilitiesObj = {
+      voice: Boolean(data.capabilities.voice),
+      sms: Boolean(data.capabilities.sms)
+    };
+  }
+  
   const phoneNumber: PhoneNumber = {
     id: data.id,
     user_id: data.user_id,
@@ -36,10 +48,7 @@ export async function getUserPhoneNumber(): Promise<PhoneNumber | null> {
     twilio_sid: data.twilio_sid,
     friendly_name: data.friendly_name || undefined,
     status: data.status,
-    capabilities: {
-      voice: data.capabilities?.voice ?? true,
-      sms: data.capabilities?.sms ?? false,
-    },
+    capabilities: capabilitiesObj,
     created_at: data.created_at,
     updated_at: data.updated_at,
   };
