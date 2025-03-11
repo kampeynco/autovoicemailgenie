@@ -1,122 +1,124 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useVoicemailRecorder } from "@/hooks/useVoicemailRecorder";
-import RecordingUI from "../signup/RecordingUI";
-import FileUploadUI from "../signup/FileUploadUI";
-import AudioDisplay from "../signup/AudioDisplay";
-import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { Plus } from "lucide-react";
+import { useVoicemails } from "@/hooks/useVoicemails";
+import VoicemailCard from "./VoicemailCard";
+import VoicemailModal from "./VoicemailModal";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const VoicemailTab = () => {
-  const { toast } = useToast();
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const {
-    isRecording,
-    recordedBlob,
-    startRecording,
-    stopRecording,
-    clearRecording
-  } = useVoicemailRecorder();
+  const { voicemails, isLoading, error, fetchVoicemails, setDefaultVoicemail, deleteVoicemail } = useVoicemails();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editVoicemail, setEditVoicemail] = useState<{ id: string; name: string; description: string | null } | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-  const handleFileSelected = (file: File) => {
-    const acceptedTypes = ['audio/mpeg', 'audio/wav', 'audio/x-aiff'];
-    if (!acceptedTypes.includes(file.type)) {
-      toast({
-        title: "Invalid File Type",
-        description: "Please upload an MP3, WAV, or AIFF file.",
-        variant: "destructive"
-      });
-      return;
-    }
-    setUploadedFile(file);
-    clearRecording(); // Clear any recorded audio
+  const handleAddNew = () => {
+    setEditVoicemail(null);
+    setIsModalOpen(true);
   };
 
-  const clearFile = () => {
-    setUploadedFile(null);
+  const handleEdit = (id: string) => {
+    const voicemail = voicemails.find(vm => vm.id === id);
+    if (voicemail) {
+      setEditVoicemail({
+        id: voicemail.id,
+        name: voicemail.name,
+        description: voicemail.description
+      });
+      setIsModalOpen(true);
+    }
   };
 
-  const handleSave = async () => {
-    if (!recordedBlob && !uploadedFile) {
-      toast({
-        title: "Missing Voicemail",
-        description: "Please record or upload a voicemail message.",
-        variant: "destructive"
-      });
-      return;
-    }
+  const handleDelete = (id: string) => {
+    setDeleteConfirmId(id);
+  };
 
-    setIsUploading(true);
-    
-    try {
-      // Mock implementation - would be replaced with actual save operation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: "Voicemail Updated",
-        description: "Your voicemail message has been updated successfully.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Update Failed",
-        description: error.message || "Failed to update voicemail message.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsUploading(false);
+  const confirmDelete = () => {
+    if (deleteConfirmId) {
+      deleteVoicemail(deleteConfirmId);
+      setDeleteConfirmId(null);
     }
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-medium text-[#073127] mb-4">Voicemail Message</h2>
-        <p className="text-sm text-gray-500 mb-4">
-          Record or upload a voicemail message for your committee. Voicemails should be no more than 30 seconds.
-        </p>
-        
-        <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center">
-          {isRecording || recordedBlob ? (
-            <RecordingUI 
-              isRecording={isRecording} 
-              onStartRecording={startRecording} 
-              onStopRecording={stopRecording} 
-            />
-          ) : uploadedFile ? null : (
-            <div className="space-y-4">
-              <RecordingUI 
-                isRecording={isRecording} 
-                onStartRecording={startRecording} 
-                onStopRecording={stopRecording} 
-              />
-              <p className="text-sm text-gray-500">Or</p>
-              <FileUploadUI onFileSelected={handleFileSelected} />
-              <p className="text-xs text-gray-500 mt-2">Accepted file types: MP3, WAV, or AIFF.</p>
-            </div>
-          )}
-          
-          <AudioDisplay 
-            blob={recordedBlob} 
-            file={uploadedFile} 
-            onClearRecording={clearRecording} 
-            onClearFile={clearFile} 
-          />
-        </div>
-      </div>
-
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-medium text-[#073127]">Voicemail Messages</h2>
         <Button 
+          onClick={handleAddNew}
           className="bg-[#004838] hover:bg-[#003026]"
-          onClick={handleSave}
-          disabled={isUploading || (!recordedBlob && !uploadedFile)}
         >
-          {isUploading ? (
-            <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-          ) : "Save Changes"}
+          <Plus className="h-4 w-4 mr-2" /> Add New Voicemail
         </Button>
       </div>
+
+      <p className="text-sm text-gray-500">
+        Manage your committee voicemail messages. You can have multiple voicemails and set one as the active message.
+      </p>
+      
+      {isLoading ? (
+        <div className="py-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#004838] mx-auto"></div>
+          <p className="mt-2 text-sm text-gray-500">Loading voicemails...</p>
+        </div>
+      ) : error ? (
+        <div className="py-8 text-center text-red-500">
+          <p>{error}</p>
+        </div>
+      ) : voicemails.length === 0 ? (
+        <div className="py-8 text-center border border-dashed rounded-lg">
+          <p className="text-gray-500">No voicemails found. Create your first voicemail message.</p>
+          <Button 
+            onClick={handleAddNew}
+            variant="outline" 
+            className="mt-4"
+          >
+            <Plus className="h-4 w-4 mr-2" /> Add New Voicemail
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {voicemails.map(voicemail => (
+            <VoicemailCard
+              key={voicemail.id}
+              id={voicemail.id}
+              name={voicemail.name}
+              description={voicemail.description}
+              isDefault={voicemail.is_default}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onSetDefault={setDefaultVoicemail}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Modal for adding/editing voicemails */}
+      {isModalOpen && (
+        <VoicemailModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onVoicemailSaved={fetchVoicemails}
+          editVoicemail={editVoicemail}
+        />
+      )}
+
+      {/* Confirmation dialog for deleting voicemails */}
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the voicemail.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-500 hover:bg-red-600">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
