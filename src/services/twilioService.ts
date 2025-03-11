@@ -4,11 +4,19 @@ import { PhoneNumber, Call, CallRecording, CallWithRecording } from "@/types/twi
 import { useAuth } from "@/contexts/AuthContext";
 
 export async function purchasePhoneNumber(): Promise<PhoneNumber> {
-  const { data, error } = await supabase.functions.invoke('purchase-phone-number');
+  // Call the edge function with authentication
+  const { data, error } = await supabase.functions.invoke('purchase-phone-number', {
+    method: 'POST',
+  });
   
   if (error) {
     console.error('Error purchasing phone number:', error);
     throw new Error(error.message || 'Failed to purchase phone number');
+  }
+  
+  if (!data || !data.phoneNumber) {
+    console.error('Invalid response from purchase-phone-number function:', data);
+    throw new Error('Failed to purchase phone number: Invalid response from server');
   }
   
   return data.phoneNumber;
