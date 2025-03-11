@@ -4,7 +4,7 @@ import { handleCors, createErrorResponse, createSuccessResponse } from "./utils/
 import { parseRequestBody } from "./utils/request.ts";
 import { 
   initSupabaseClients, 
-  authenticateUser, 
+  getUserFromAuth, 
   checkExistingPhoneNumber, 
   savePhoneNumber 
 } from "./services/supabase.ts";
@@ -29,51 +29,68 @@ serve(async (req: Request) => {
     // Get JWT token from the authorization header
     const authHeader = req.headers.get('Authorization');
     
-    // Initialize Supabase clients
-    const { supabaseAdmin, supabase, supabaseUrl } = initSupabaseClients(authHeader);
+    console.log(`Got auth header: ${authHeader ? 'Yes' : 'No'}`);
     
-    // Authenticate user
+    // Initialize Supabase clients
+    const { supabaseAdmin, supabaseUrl } = initSupabaseClients(authHeader);
+    
+    // Authenticate user with admin client
     let user;
     try {
-      user = await authenticateUser(supabase);
+      user = await getUserFromAuth(supabaseAdmin, authHeader);
+      console.log(`Authenticated user: ${user.id}`);
     } catch (error) {
+      console.error('Authentication error:', error.message);
       return createErrorResponse(error.message, 401);
     }
     
     // Check if the user already has a phone number
-    const existingNumber = await checkExistingPhoneNumber(supabase, user.id);
+    const existingNumber = await checkExistingPhoneNumber(supabaseAdmin, user.id);
     if (existingNumber) {
+      console.log(`User already has phone number: ${existingNumber.phone_number}`);
       return createErrorResponse('User already has a phone number', 400);
     }
     
     // Get Twilio credentials
     const credentials = getTwilioCredentials();
+    console.log('Got Twilio credentials');
     
     // Get base URL for webhook endpoints
     const webhookBaseUrl = Deno.env.get('FUNCTION_BASE_URL') || 
       `https://${supabaseUrl.replace('https://', '')}/functions/v1`;
     
+    console.log(`Using webhook base URL: ${webhookBaseUrl}`);
+    
     // Search for available phone numbers with provided parameters
     let phoneNumber;
     try {
+      console.log(`Searching for phone numbers with area code: ${areaCode} or zip code: ${zipCode}`);
       phoneNumber = await searchAvailablePhoneNumbers(credentials, { areaCode, zipCode });
+      console.log(`Found available phone number: ${phoneNumber}`);
     } catch (error) {
+      console.error('Error searching for phone numbers:', error);
       return createErrorResponse(error.message, 404);
     }
     
     // Purchase the phone number
     let phoneData;
     try {
+      console.log(`Purchasing phone number: ${phoneNumber}`);
       phoneData = await purchasePhoneNumber(credentials, phoneNumber, user.id, webhookBaseUrl);
+      console.log(`Successfully purchased phone number`);
     } catch (error) {
+      console.error('Error purchasing phone number:', error);
       return createErrorResponse(error.message, 500);
     }
     
     // Save the phone number to our database
     let phoneNumberData;
     try {
+      console.log(`Saving phone number to database for user: ${user.id}`);
       phoneNumberData = await savePhoneNumber(supabaseAdmin, user.id, phoneData);
+      console.log(`Successfully saved phone number to database`);
     } catch (error) {
+      console.error('Error saving phone number:', error);
       return createErrorResponse(error.message, 500);
     }
     

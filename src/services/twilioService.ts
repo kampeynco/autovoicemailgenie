@@ -49,7 +49,16 @@ export async function purchasePhoneNumber(locationCode?: string, searchType?: st
   
   if (error) {
     console.error('Error purchasing phone number:', error);
-    throw new Error(error.message || 'Failed to purchase phone number');
+    
+    // Get a more specific error message if possible
+    let errorMessage = error.message || 'Failed to purchase phone number';
+    
+    // If we have response data with an error message, use that instead
+    if (error.context && error.context.message) {
+      errorMessage = error.context.message;
+    }
+    
+    throw new Error(errorMessage);
   }
   
   if (!data || !data.phoneNumber) {

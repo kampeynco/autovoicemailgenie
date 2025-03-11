@@ -10,34 +10,46 @@ export function initSupabaseClients(authHeader: string | null) {
   // Extract the JWT token
   const token = authHeader ? authHeader.replace('Bearer ', '') : null;
   
-  // Initialize user client if token exists
-  const supabase = token ? createClient(supabaseUrl, token) : null;
-  
-  return { supabaseAdmin, supabase, supabaseUrl };
+  // Initialize admin client only - don't depend on user token
+  return { supabaseAdmin, supabaseUrl };
 }
 
-// Authenticate user and return user data
-export async function authenticateUser(supabase: any) {
-  if (!supabase) {
+// Get user ID from auth header using admin client
+export async function getUserFromAuth(supabaseAdmin: any, authHeader: string | null) {
+  if (!authHeader) {
     throw new Error('No Authorization header found');
   }
   
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  // Extract JWT token
+  const token = authHeader.replace('Bearer ', '');
   
-  if (userError || !user) {
-    console.error('Error getting user:', userError);
-    throw new Error('Unauthorized');
+  try {
+    // Use the admin client to get user from JWT
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+    
+    if (error || !user) {
+      console.error('Error getting user:', error);
+      throw new Error('Unauthorized');
+    }
+    
+    return user;
+  } catch (error) {
+    console.error('Error authenticating user:', error);
+    throw new Error('Authentication failed');
   }
-  
-  return user;
 }
 
 // Check if user already has a phone number
-export async function checkExistingPhoneNumber(supabase: any, userId: string) {
-  const { data: existingNumbers, error: existingError } = await supabase
+export async function checkExistingPhoneNumber(supabaseAdmin: any, userId: string) {
+  const { data: existingNumbers, error: existingError } = await supabaseAdmin
     .from('phone_numbers')
     .select('*')
     .eq('user_id', userId);
+  
+  if (existingError) {
+    console.error('Error checking existing phone number:', existingError);
+    throw new Error('Failed to check existing phone number');
+  }
   
   if (existingNumbers && existingNumbers.length > 0) {
     return existingNumbers[0];
