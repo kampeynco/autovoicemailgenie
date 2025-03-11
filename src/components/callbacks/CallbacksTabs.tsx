@@ -17,7 +17,10 @@ const CallbacksTabs: React.FC<CallbacksTabsProps> = ({
   error, 
   onRefetch 
 }) => {
-  const unheardCalls = calls?.filter(call => call.has_recording) || [];
+  // Filter for calls with recordings that haven't been marked as heard
+  const unheardCalls = calls?.filter(call => 
+    call.recording && !call.is_heard
+  ) || [];
   
   return (
     <Tabs defaultValue="all">

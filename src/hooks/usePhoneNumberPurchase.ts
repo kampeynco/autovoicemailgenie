@@ -5,6 +5,11 @@ import { purchasePhoneNumber } from "@/services/twilioService";
 import { toast } from "@/components/ui/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
+type PurchaseError = {
+  message: string;
+  status?: number;
+};
+
 /**
  * Custom hook to handle phone number purchase flow
  */
@@ -30,11 +35,12 @@ export function usePhoneNumberPurchase() {
       queryClient.invalidateQueries({ queryKey: ['phone-number'] });
       
       return newPhoneNumber;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error purchasing phone number:', error);
+      const purchaseError = error as PurchaseError;
       toast({
         title: "Failed to purchase phone number",
-        description: error.message || "Please try again later.",
+        description: purchaseError.message || "Please try again later.",
         variant: "destructive",
       });
       return null;
