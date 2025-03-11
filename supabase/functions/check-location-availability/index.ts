@@ -55,6 +55,8 @@ serve(async (req: Request) => {
     // Get Twilio credentials using the new environment variable names
     const accountSid = Deno.env.get('TWILIO_API_SID');
     const authToken = Deno.env.get('TWILIO_API_SECRET');
+    
+    console.log(`Using Twilio credentials: SID=${accountSid?.substring(0, 5)}..., Auth token exists: ${!!authToken}`);
       
     // Check if credentials exist
     if (!accountSid || !authToken) {
@@ -67,8 +69,6 @@ serve(async (req: Request) => {
         }
       );
     }
-    
-    console.log(`Using Twilio account SID: ${accountSid.substring(0, 5)}...`);
     
     // Prepare search parameters using URLSearchParams
     const searchParams = new URLSearchParams({

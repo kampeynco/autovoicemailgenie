@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export async function checkLocationAvailability(code: string, type: "areaCode" | "zipCode"): Promise<boolean> {
   try {
+    console.log(`Checking availability for ${type} ${code}`);
     const { data, error } = await supabase.functions.invoke('check-location-availability', {
       method: 'POST',
       body: { 
@@ -18,6 +19,7 @@ export async function checkLocationAvailability(code: string, type: "areaCode" |
       return false;
     }
     
+    console.log('Availability response:', data);
     return data.available;
   } catch (error) {
     console.error(`Error checking ${type} availability:`, error);
