@@ -80,12 +80,17 @@ const VoicemailStep = ({
       // Generate a unique filename
       const fileName = `voicemail_${Date.now()}.${fileToUpload.name.split('.').pop()}`;
 
-      // Upload to Supabase Storage
+      // Upload to Supabase Storage with explicit options
       const {
         data: uploadData,
         error
-      } = await supabase.storage.from('voicemails').upload(fileName, fileToUpload);
+      } = await supabase.storage.from('voicemails').upload(fileName, fileToUpload, {
+        cacheControl: '3600',
+        upsert: false
+      });
+      
       if (error) {
+        console.error("Storage upload error:", error);
         throw new Error(error.message);
       }
 
