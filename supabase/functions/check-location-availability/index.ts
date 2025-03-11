@@ -56,10 +56,11 @@ serve(async (req) => {
     }
 
     // Get Twilio credentials using the new environment variable names
-    const accountSid = Deno.env.get('TWILIO_API_SID');
-    const authToken = Deno.env.get('TWILIO_API_SECRET');
+    const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID');
+    const authToken = Deno.env.get('TWILIO_AUTH_TOKEN');
     
-    console.log(`Using Twilio credentials: SID=${accountSid ? 'exists' : 'missing'}, Auth token: ${authToken ? 'exists' : 'missing'}`);
+    // For debugging, log if we have credentials (but not the actual values)
+    console.log(`Using Twilio credentials: AccountSID=${accountSid ? 'exists' : 'missing'}, AuthToken: ${authToken ? 'exists' : 'missing'}`);
       
     // Check if credentials exist
     if (!accountSid || !authToken) {
