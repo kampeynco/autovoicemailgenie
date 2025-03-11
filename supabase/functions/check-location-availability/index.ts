@@ -19,6 +19,8 @@ serve(async (req: Request) => {
     const code = requestBody.code;
     const type = requestBody.type || "areaCode"; // Default to area code if not specified
     
+    console.log(`Received request to check ${type} ${code}`);
+    
     // Validate the input parameters
     if (!code || typeof code !== 'string') {
       return new Response(
@@ -50,7 +52,7 @@ serve(async (req: Request) => {
       );
     }
 
-    // Get Twilio credentials - using the new environment variable names
+    // Get Twilio credentials using the new environment variable names
     const accountSid = Deno.env.get('TWILIO_API_SID');
     const authToken = Deno.env.get('TWILIO_API_SECRET');
       
