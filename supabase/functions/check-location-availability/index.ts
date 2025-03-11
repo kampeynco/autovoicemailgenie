@@ -94,51 +94,81 @@ serve(async (req) => {
     console.log(`Making request to Twilio API: ${twilioApiUrl}`);
     
     // Create the Authorization header correctly for Twilio
-    const authHeader = `Basic ${btoa(`${accountSid}:${authToken}`)}`;
-    console.log(`Authorization header created with length: ${authHeader.length}`);
+    const authString = `${accountSid}:${authToken}`;
+    const authHeader = `Basic ${btoa(authString)}`;
+    console.log(`Auth string length: ${authString.length}, Authorization header length: ${authHeader.length}`);
     
-    const twilioResponse = await fetch(twilioApiUrl, {
-      method: "GET",
-      headers: {
-        "Authorization": authHeader,
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      const twilioResponse = await fetch(twilioApiUrl, {
+        method: "GET",
+        headers: {
+          "Authorization": authHeader,
+          "Content-Type": "application/json",
+        },
+      });
 
-    console.log(`Twilio API response status: ${twilioResponse.status}`);
+      console.log(`Twilio API response status: ${twilioResponse.status}`);
 
-    // Process Twilio response
-    if (!twilioResponse.ok) {
-      const errorText = await twilioResponse.text();
-      console.error(`Twilio API error (${twilioResponse.status}):`, errorText);
+      // Process Twilio response
+      if (!twilioResponse.ok) {
+        let errorText = "";
+        try {
+          errorText = await twilioResponse.text();
+        } catch (e) {
+          errorText = "Could not read error response";
+        }
+        
+        console.error(`Twilio API error (${twilioResponse.status}):`, errorText);
+        
+        return new Response(
+          JSON.stringify({
+            error: "Error checking availability with Twilio",
+            status: twilioResponse.status,
+            details: errorText
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 502 }
+        );
+      }
+
+      let twilioData;
+      try {
+        twilioData = await twilioResponse.json();
+      } catch (e) {
+        console.error("Error parsing Twilio response:", e);
+        return new Response(
+          JSON.stringify({
+            error: "Invalid response from Twilio API",
+            details: e.message
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 502 }
+        );
+      }
       
+      console.log(`Twilio response status: ${twilioResponse.status}`);
+      console.log(`Available phone numbers count: ${twilioData.available_phone_numbers?.length || 0}`);
+
+      // Check if any phone numbers are available
+      const available = twilioData.available_phone_numbers && 
+                        twilioData.available_phone_numbers.length > 0;
+
+      // Return the result
+      return new Response(
+        JSON.stringify({ 
+          available,
+          count: twilioData.available_phone_numbers?.length || 0
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    } catch (fetchError) {
+      console.error("Fetch error during Twilio API call:", fetchError);
       return new Response(
         JSON.stringify({
-          error: "Error checking availability with Twilio",
-          status: twilioResponse.status,
-          details: errorText
+          error: "Network error when contacting Twilio API",
+          details: fetchError.message
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 502 }
       );
     }
-
-    const twilioData = await twilioResponse.json();
-    console.log(`Twilio response status: ${twilioResponse.status}`);
-    console.log(`Available phone numbers count: ${twilioData.available_phone_numbers?.length || 0}`);
-
-    // Check if any phone numbers are available
-    const available = twilioData.available_phone_numbers && 
-                      twilioData.available_phone_numbers.length > 0;
-
-    // Return the result
-    return new Response(
-      JSON.stringify({ 
-        available,
-        count: twilioData.available_phone_numbers?.length || 0
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-
   } catch (error) {
     // Handle any unexpected errors
     console.error("Unexpected error:", error);
