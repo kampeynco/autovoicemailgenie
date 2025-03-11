@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Phone, Calendar, BarChart3, Zap, ArrowRight, CheckCircle } from "lucide-react";
@@ -10,12 +11,12 @@ const Index = () => {
             <h1 className="text-2xl font-semibold text-[#004838]">Callback Engine</h1>
           </div>
           <div className="flex items-center space-x-4">
-            <Link to="/login">
+            <Link to="/auth/signin">
               <Button variant="ghost" className="text-[#004838] hover:text-[#004838]/90 hover:bg-[#EBEDE8]">
                 Log in
               </Button>
             </Link>
-            <Link to="/signup">
+            <Link to="/auth/signup">
               <Button className="bg-[#004838] text-white hover:bg-[#004838]/90">
                 Get Started
               </Button>
@@ -34,9 +35,9 @@ const Index = () => {
             Schedule recurring voicemail campaigns for political fundraising. Reach more donors with less effort.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/signup">
+            <Link to="/auth/signup">
               <Button size="lg" className="bg-[#004838] text-white hover:bg-[#004838]/90 hover-scale">
-                Start Your Free Trial <ArrowRight className="ml-2 h-4 w-4" />
+                Skip Call Time Now <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
             <Button variant="outline" size="lg" className="border-[#004838] text-[#004838] hover:bg-[#EBEDE8]">
@@ -128,9 +129,9 @@ const Index = () => {
             <p className="text-xl mb-8 max-w-2xl mx-auto">
               Get started with Callback Engine today and experience the power of automated voicemail drops for political campaigns.
             </p>
-            <Link to="/signup">
+            <Link to="/auth/signup">
               <Button className="bg-[#E2FB6C] text-[#004838] hover:bg-[#E2FB6C]/90 hover-scale">
-                Start Your Free Trial <ArrowRight className="ml-2 h-4 w-4" />
+                Skip Call Time Now <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>
