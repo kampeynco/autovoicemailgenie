@@ -59,7 +59,7 @@ serve(async (req) => {
     const accountSid = Deno.env.get('TWILIO_API_SID');
     const authToken = Deno.env.get('TWILIO_API_SECRET');
     
-    console.log(`Using Twilio credentials: SID=${accountSid?.substring(0, 5)}..., Auth token exists: ${!!authToken}`);
+    console.log(`Using Twilio credentials: SID=${accountSid ? 'exists' : 'missing'}, Auth token: ${authToken ? 'exists' : 'missing'}`);
       
     // Check if credentials exist
     if (!accountSid || !authToken) {
@@ -93,13 +93,19 @@ serve(async (req) => {
     
     console.log(`Making request to Twilio API: ${twilioApiUrl}`);
     
+    // Create the Authorization header correctly for Twilio
+    const authHeader = `Basic ${btoa(`${accountSid}:${authToken}`)}`;
+    console.log(`Authorization header created with length: ${authHeader.length}`);
+    
     const twilioResponse = await fetch(twilioApiUrl, {
       method: "GET",
       headers: {
-        Authorization: `Basic ${btoa(`${accountSid}:${authToken}`)}`,
+        "Authorization": authHeader,
         "Content-Type": "application/json",
       },
     });
+
+    console.log(`Twilio API response status: ${twilioResponse.status}`);
 
     // Process Twilio response
     if (!twilioResponse.ok) {
