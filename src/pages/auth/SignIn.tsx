@@ -48,9 +48,7 @@ const SignIn = () => {
           <h1 className="font-semibold text-white text-4xl">Callback Engine</h1>
         </div>
         <h2 className="text-4xl font-bold mb-4">Welcome back</h2>
-        <p className="text-lg mb-12">
-          Sign in to access your account and manage your committee's voicemail campaigns with ease.
-        </p>
+        <p className="text-lg mb-12">Sign in to access your account and manage your committee's fundraising efforts with ease.</p>
         <div>
           <p className="text-white/90">
             Don't have an account?{" "}
