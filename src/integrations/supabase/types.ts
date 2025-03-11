@@ -196,20 +196,29 @@ export type Database = {
       voicemails: {
         Row: {
           created_at: string
+          description: string | null
           file_path: string | null
           id: string
+          is_default: boolean | null
+          name: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          description?: string | null
           file_path?: string | null
           id?: string
+          is_default?: boolean | null
+          name?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          description?: string | null
           file_path?: string | null
           id?: string
+          is_default?: boolean | null
+          name?: string
           user_id?: string
         }
         Relationships: []

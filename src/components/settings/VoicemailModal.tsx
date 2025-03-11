@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useVoicemailRecorder } from "@/hooks/useVoicemailRecorder";
@@ -39,6 +39,14 @@ const VoicemailModal = ({ isOpen, onClose, onVoicemailSaved, editVoicemail }: Vo
     clearRecording
   } = useVoicemailRecorder();
 
+  // Update form when editVoicemail changes
+  useEffect(() => {
+    if (editVoicemail) {
+      setName(editVoicemail.name);
+      setDescription(editVoicemail.description || "");
+    }
+  }, [editVoicemail]);
+
   const handleFileSelected = (file: File) => {
     const acceptedTypes = ['audio/mpeg', 'audio/wav', 'audio/x-aiff'];
     if (!acceptedTypes.includes(file.type)) {
@@ -67,15 +75,6 @@ const VoicemailModal = ({ isOpen, onClose, onVoicemailSaved, editVoicemail }: Vo
       return;
     }
 
-    if (!recordedBlob && !uploadedFile) {
-      toast({
-        title: "Missing Voicemail",
-        description: "Please record or upload a voicemail message.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     if (!name.trim()) {
       toast({
         title: "Missing Name",
@@ -88,30 +87,80 @@ const VoicemailModal = ({ isOpen, onClose, onVoicemailSaved, editVoicemail }: Vo
     setIsUploading(true);
     
     try {
-      const fileToUpload = uploadedFile || new File([recordedBlob!], "recording.webm", { type: recordedBlob!.type });
-      const fileExt = fileToUpload.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      let filePath = null;
+      
+      // Only upload a new file if we have one
+      if (uploadedFile || recordedBlob) {
+        const fileToUpload = uploadedFile || new File([recordedBlob!], "recording.webm", { type: recordedBlob!.type });
+        const fileExt = fileToUpload.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+        
+        // Make sure the voicemails bucket exists
+        const { data: buckets } = await supabase.storage.listBuckets();
+        const voicemailsBucketExists = buckets?.some(bucket => bucket.name === 'voicemails');
+        
+        if (!voicemailsBucketExists) {
+          // Create the bucket if it doesn't exist
+          await supabase.storage.createBucket('voicemails', {
+            public: true,
+          });
+        }
+        
+        // Upload the file
+        const { error: uploadError } = await supabase.storage
+          .from('voicemails')
+          .upload(fileName, fileToUpload, {
+            cacheControl: '3600',
+            upsert: true
+          });
+          
+        if (uploadError) throw uploadError;
+        
+        // Get the public URL
+        const { data: publicUrlData } = supabase.storage
+          .from('voicemails')
+          .getPublicUrl(fileName);
+          
+        filePath = publicUrlData.publicUrl;
+      }
 
       // Create or update voicemail record in database
-      const { error } = editVoicemail 
-        ? await supabase
-            .from('voicemails')
-            .update({ 
-              name, 
-              description: description || null,
-              file_path: fileName
-            })
-            .eq('id', editVoicemail.id)
-        : await supabase
-            .from('voicemails')
-            .insert({ 
-              user_id: user.id,
-              name,
-              description: description || null,
-              file_path: fileName
-            });
-
-      if (error) throw error;
+      if (editVoicemail) {
+        // Update existing voicemail
+        const updateData: any = { 
+          name, 
+          description: description || null,
+        };
+        
+        // Only update file_path if a new file was uploaded
+        if (filePath) {
+          updateData.file_path = filePath;
+        }
+        
+        const { error } = await supabase
+          .from('voicemails')
+          .update(updateData)
+          .eq('id', editVoicemail.id);
+          
+        if (error) throw error;
+      } else {
+        // Create new voicemail
+        if (!filePath) {
+          throw new Error("No audio file was provided");
+        }
+        
+        const { error } = await supabase
+          .from('voicemails')
+          .insert({ 
+            user_id: user.id,
+            name,
+            description: description || null,
+            file_path: filePath,
+            is_default: false
+          });
+          
+        if (error) throw error;
+      }
       
       toast({
         title: "Voicemail Saved",
@@ -121,6 +170,7 @@ const VoicemailModal = ({ isOpen, onClose, onVoicemailSaved, editVoicemail }: Vo
       onVoicemailSaved();
       onClose();
     } catch (error: any) {
+      console.error("Error saving voicemail:", error);
       toast({
         title: "Save Failed",
         description: error.message || "Failed to save voicemail.",
@@ -199,7 +249,7 @@ const VoicemailModal = ({ isOpen, onClose, onVoicemailSaved, editVoicemail }: Vo
           <Button 
             className="bg-[#004838] hover:bg-[#003026]"
             onClick={handleSave}
-            disabled={isUploading || (!name.trim() || (!recordedBlob && !uploadedFile))}
+            disabled={isUploading || !name.trim()}
           >
             {isUploading ? (
               <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
