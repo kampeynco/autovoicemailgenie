@@ -1,15 +1,9 @@
 
 // Get Twilio credentials based on environment
 export function getTwilioCredentials() {
-  const isDevelopment = Deno.env.get('ENVIRONMENT') !== 'production';
-  
   return {
-    accountSid: isDevelopment 
-      ? Deno.env.get('TWILIO_ACCOUNT_SID_TEST')! 
-      : Deno.env.get('TWILIO_ACCOUNT_SID_LIVE')!,
-    authToken: isDevelopment 
-      ? Deno.env.get('TWILIO_AUTH_TOKEN_TEST')! 
-      : Deno.env.get('TWILIO_AUTH_TOKEN_LIVE')!
+    accountSid: Deno.env.get('TWILIO_API_SID')!,
+    authToken: Deno.env.get('TWILIO_API_SECRET')!
   };
 }
 

@@ -50,14 +50,9 @@ serve(async (req: Request) => {
       );
     }
 
-    // Get Twilio credentials based on environment
-    const isDevelopment = Deno.env.get('ENVIRONMENT') !== 'production';
-    const accountSid = isDevelopment 
-      ? Deno.env.get('TWILIO_ACCOUNT_SID_TEST') 
-      : Deno.env.get('TWILIO_ACCOUNT_SID_LIVE');
-    const authToken = isDevelopment 
-      ? Deno.env.get('TWILIO_AUTH_TOKEN_TEST') 
-      : Deno.env.get('TWILIO_AUTH_TOKEN_LIVE');
+    // Get Twilio credentials - using the new environment variable names
+    const accountSid = Deno.env.get('TWILIO_API_SID');
+    const authToken = Deno.env.get('TWILIO_API_SECRET');
       
     // Check if credentials exist
     if (!accountSid || !authToken) {
@@ -72,7 +67,6 @@ serve(async (req: Request) => {
     }
     
     console.log(`Using Twilio account SID: ${accountSid.substring(0, 5)}...`);
-    console.log(`Environment: ${isDevelopment ? 'Development' : 'Production'}`);
     
     // Prepare search parameters using URLSearchParams
     const searchParams = new URLSearchParams({
