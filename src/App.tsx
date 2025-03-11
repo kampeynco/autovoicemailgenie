@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
+import Callbacks from "./pages/Callbacks";
 import NotFound from "./pages/NotFound";
 import SignIn from "./pages/auth/SignIn";
 import SignUp from "./pages/auth/SignUp";
@@ -37,6 +38,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Layout><Dashboard /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/callbacks" 
+                element={
+                  <ProtectedRoute>
+                    <Layout><Callbacks /></Layout>
                   </ProtectedRoute>
                 } 
               />

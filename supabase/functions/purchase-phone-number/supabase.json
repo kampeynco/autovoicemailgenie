@@ -1,0 +1,7 @@
+
+{
+  "name": "purchase-phone-number",
+  "version": "1.0.0",
+  "description": "API for purchasing Twilio phone numbers",
+  "main": "index.ts"
+}

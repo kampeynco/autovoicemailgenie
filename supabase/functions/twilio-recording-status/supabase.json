@@ -1,0 +1,7 @@
+
+{
+  "name": "twilio-recording-status",
+  "version": "1.0.0",
+  "description": "Webhook for handling Twilio recording status updates",
+  "main": "index.ts"
+}

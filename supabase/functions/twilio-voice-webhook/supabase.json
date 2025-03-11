@@ -1,0 +1,7 @@
+
+{
+  "name": "twilio-voice-webhook",
+  "version": "1.0.0",
+  "description": "Webhook for handling Twilio voice calls",
+  "main": "index.ts"
+}

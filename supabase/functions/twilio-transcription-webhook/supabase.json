@@ -1,0 +1,7 @@
+
+{
+  "name": "twilio-transcription-webhook",
+  "version": "1.0.0",
+  "description": "Webhook for handling Twilio transcription callbacks",
+  "main": "index.ts"
+}

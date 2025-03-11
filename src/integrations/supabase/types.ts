@@ -9,6 +9,100 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      call_recordings: {
+        Row: {
+          call_id: string
+          created_at: string
+          duration: number | null
+          file_path: string | null
+          id: string
+          recording_sid: string
+          recording_url: string
+          transcription: string | null
+          updated_at: string
+        }
+        Insert: {
+          call_id: string
+          created_at?: string
+          duration?: number | null
+          file_path?: string | null
+          id?: string
+          recording_sid: string
+          recording_url: string
+          transcription?: string | null
+          updated_at?: string
+        }
+        Update: {
+          call_id?: string
+          created_at?: string
+          duration?: number | null
+          file_path?: string | null
+          id?: string
+          recording_sid?: string
+          recording_url?: string
+          transcription?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_recordings_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calls: {
+        Row: {
+          call_sid: string
+          call_time: string
+          caller_number: string
+          created_at: string
+          duration: number | null
+          has_recording: boolean | null
+          id: string
+          phone_number_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          call_sid: string
+          call_time?: string
+          caller_number: string
+          created_at?: string
+          duration?: number | null
+          has_recording?: boolean | null
+          id?: string
+          phone_number_id: string
+          status: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          call_sid?: string
+          call_time?: string
+          caller_number?: string
+          created_at?: string
+          duration?: number | null
+          has_recording?: boolean | null
+          id?: string
+          phone_number_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calls_phone_number_id_fkey"
+            columns: ["phone_number_id"]
+            isOneToOne: false
+            referencedRelation: "phone_numbers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       committees: {
         Row: {
           candidate_first_name: string | null
@@ -41,6 +135,42 @@ export type Database = {
           id?: string
           organization_name?: string | null
           type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      phone_numbers: {
+        Row: {
+          capabilities: Json | null
+          created_at: string
+          friendly_name: string | null
+          id: string
+          phone_number: string
+          status: string
+          twilio_sid: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          capabilities?: Json | null
+          created_at?: string
+          friendly_name?: string | null
+          id?: string
+          phone_number: string
+          status?: string
+          twilio_sid: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          capabilities?: Json | null
+          created_at?: string
+          friendly_name?: string | null
+          id?: string
+          phone_number?: string
+          status?: string
+          twilio_sid?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
