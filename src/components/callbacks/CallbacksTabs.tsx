@@ -18,8 +18,9 @@ const CallbacksTabs: React.FC<CallbacksTabsProps> = ({
   onRefetch 
 }) => {
   // Filter for calls with recordings that haven't been marked as heard
+  // Use optional chaining and fallback for is_heard property since it might be undefined
   const unheardCalls = calls?.filter(call => 
-    call.recording && !call.is_heard
+    call.recording && call.is_heard !== true
   ) || [];
   
   return (

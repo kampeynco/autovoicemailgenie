@@ -23,6 +23,7 @@ export interface Call {
   status: string;
   duration?: number;
   has_recording: boolean;
+  is_heard?: boolean;  // Add the is_heard property as optional
   call_time: string;
   created_at: string;
   updated_at: string;
