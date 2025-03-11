@@ -115,8 +115,8 @@ const VoicemailStep = ({
 
   return <form onSubmit={handleSubmit}>
       <div className="space-y-6">
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-2">
+        <div className="text-left">
+          <div className="flex items-center gap-2">
             <h2 className="text-lg font-medium text-[#073127]">Voicemail Message</h2>
             <TooltipProvider>
               <Tooltip>
