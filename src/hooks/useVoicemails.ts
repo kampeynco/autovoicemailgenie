@@ -38,7 +38,18 @@ export const useVoicemails = () => {
 
       if (error) throw error;
       
-      setVoicemails(data || []);
+      // Ensure we're handling the correct shape of data
+      // by mapping the response to our Voicemail interface
+      const formattedVoicemails: Voicemail[] = (data || []).map(item => ({
+        id: item.id,
+        name: item.name || 'Untitled Voicemail',
+        description: item.description,
+        file_path: item.file_path,
+        is_default: item.is_default || false,
+        created_at: item.created_at
+      }));
+      
+      setVoicemails(formattedVoicemails);
     } catch (err: any) {
       console.error('Error fetching voicemails:', err);
       setError(err.message || 'Failed to load voicemails');
