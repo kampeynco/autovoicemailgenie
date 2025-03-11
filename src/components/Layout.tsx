@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { ChevronRight, Settings, History, Inbox, Home, Voicemail, HelpCircle, ArrowUpRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, Settings, History, Inbox, Home, HelpCircle, ArrowUpRight, ChevronLeft } from "lucide-react";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -73,17 +73,6 @@ const Layout = ({ children }: LayoutProps) => {
                 >
                   <Inbox size={18} />
                   {!collapsed && <span className="ml-3">Callbacks</span>}
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/voicemail" 
-                  className={`flex items-center px-3 py-2 rounded-md hover:bg-gray-100 ${
-                    isActive('/voicemail') ? 'bg-gray-100 text-[#004838]' : 'text-gray-700'
-                  }`}
-                >
-                  <Voicemail size={18} />
-                  {!collapsed && <span className="ml-3">Voice Mail</span>}
                 </Link>
               </li>
               <li>
