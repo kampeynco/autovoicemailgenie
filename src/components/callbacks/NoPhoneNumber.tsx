@@ -17,9 +17,10 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Phone } from "lucide-react";
+import { PhoneNumber } from "@/types/twilio";
 
 interface NoPhoneNumberProps {
-  onPurchase: (areaCode?: string) => Promise<void>;
+  onPurchase: (areaCode?: string) => Promise<PhoneNumber | null>;
   isPurchasing: boolean;
 }
 
