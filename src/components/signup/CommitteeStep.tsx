@@ -140,13 +140,27 @@ const CommitteeStep = () => {
             
             <div className="space-y-2">
               <Label htmlFor="candidateSuffix">Suffix</Label>
-              <Input
-                id="candidateSuffix"
-                placeholder="E.g., Jr., Sr., III"
-                value={data.candidateSuffix}
-                onChange={(e) => updateData({ candidateSuffix: e.target.value })}
-                className="h-12"
-              />
+              <Select
+                value={data.candidateSuffix || ""}
+                onValueChange={(value) => updateData({ candidateSuffix: value })}
+              >
+                <SelectTrigger id="candidateSuffix" className="h-12">
+                  <SelectValue placeholder="Select suffix (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="Jr.">Jr.</SelectItem>
+                  <SelectItem value="Sr.">Sr.</SelectItem>
+                  <SelectItem value="I">I</SelectItem>
+                  <SelectItem value="II">II</SelectItem>
+                  <SelectItem value="III">III</SelectItem>
+                  <SelectItem value="IV">IV</SelectItem>
+                  <SelectItem value="V">V</SelectItem>
+                  <SelectItem value="Esq.">Esq.</SelectItem>
+                  <SelectItem value="MD">MD</SelectItem>
+                  <SelectItem value="PhD">PhD</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         )}
