@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -91,9 +90,7 @@ const SignUp = () => {
       {/* Left panel */}
       <div className="hidden md:flex md:w-1/2 bg-[#004838] text-white flex-col justify-center px-12">
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold flex items-center">
-            <span className="mr-2">Callback Engine</span>
-          </h1>
+          <h1 className="text-2xl font-semibold">Callback Engine</h1>
         </div>
         <h2 className="text-4xl font-bold mb-4">Create an account</h2>
         <p className="text-lg mb-12">
