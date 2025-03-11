@@ -45,7 +45,7 @@ const SignIn = () => {
       {/* Left panel */}
       <div className="hidden md:flex md:w-1/2 bg-[#004838] text-white flex-col justify-center px-12">
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-white">Callback Engine</h1>
+          <h1 className="font-semibold text-white text-4xl">Callback Engine</h1>
         </div>
         <h2 className="text-4xl font-bold mb-4">Welcome back</h2>
         <p className="text-lg mb-12">
