@@ -63,7 +63,7 @@ const CandidateForm = ({
       <div className="space-y-2">
         <Label htmlFor="candidateSuffix">Suffix</Label>
         <Select
-          value={candidateSuffix || ""}
+          value={candidateSuffix}
           onValueChange={(value) => updateData({ candidateSuffix: value })}
         >
           <SelectTrigger id="candidateSuffix" className="h-12">

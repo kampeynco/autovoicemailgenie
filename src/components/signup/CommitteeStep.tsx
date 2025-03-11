@@ -5,10 +5,16 @@ import { useToast } from "@/components/ui/use-toast";
 import CommitteeTypeSelection from "./committees/CommitteeTypeSelection";
 import CandidateForm from "./committees/CandidateForm";
 import OrganizationForm from "./committees/OrganizationForm";
+import { useEffect } from "react";
 
 const CommitteeStep = () => {
   const { data, updateData, nextStep, prevStep } = useSignUp();
   const { toast } = useToast();
+
+  // Debugging: log current committee type on mount and when it changes
+  useEffect(() => {
+    console.log("Current committee type:", data.committeeType);
+  }, [data.committeeType]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +73,7 @@ const CommitteeStep = () => {
             candidateFirstName={data.candidateFirstName}
             candidateMiddleInitial={data.candidateMiddleInitial}
             candidateLastName={data.candidateLastName}
-            candidateSuffix={data.candidateSuffix}
+            candidateSuffix={data.candidateSuffix || ""}
             updateData={updateData}
           />
         )}
