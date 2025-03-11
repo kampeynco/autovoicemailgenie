@@ -30,14 +30,18 @@ export async function getUserPhoneNumber(): Promise<PhoneNumber | null> {
   }
   
   // Transform the data to match the PhoneNumber interface
-  // First, safely extract capabilities as an object
+  // Create a default capabilities object
   let capabilitiesObj = { voice: true, sms: false };
   
-  // Check if capabilities is an object (not a string)
-  if (data.capabilities && typeof data.capabilities === 'object') {
+  // Check if capabilities exists and is an object (not an array or primitive)
+  if (data.capabilities && 
+      typeof data.capabilities === 'object' && 
+      !Array.isArray(data.capabilities)) {
+    // Now TypeScript knows this is an object with string keys
+    const capObj = data.capabilities as Record<string, unknown>;
     capabilitiesObj = {
-      voice: Boolean(data.capabilities.voice),
-      sms: Boolean(data.capabilities.sms)
+      voice: typeof capObj.voice === 'boolean' ? capObj.voice : Boolean(capObj.voice),
+      sms: typeof capObj.sms === 'boolean' ? capObj.sms : Boolean(capObj.sms)
     };
   }
   
