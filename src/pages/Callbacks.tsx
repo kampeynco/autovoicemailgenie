@@ -124,13 +124,24 @@ const Callbacks: React.FC = () => {
     );
   }
   
-  // If there's no phone number yet
-  if (!isLoadingPhoneNumber && !phoneNumber) {
+  // If still loading phone number, show loading state
+  if (isLoadingPhoneNumber) {
     return (
-      <NoPhoneNumber 
-        onPurchase={handlePurchasePhoneNumber} 
-        isPurchasing={isPurchasing} 
-      />
+      <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-[#004838]" />
+      </div>
+    );
+  }
+  
+  // If there's no phone number yet
+  if (!phoneNumber) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <NoPhoneNumber 
+          onPurchase={handlePurchasePhoneNumber} 
+          isPurchasing={isPurchasing} 
+        />
+      </div>
     );
   }
   
@@ -173,7 +184,7 @@ const Callbacks: React.FC = () => {
             ) : callsError ? (
               <div className="bg-red-50 p-4 rounded-md">
                 <h3 className="text-red-800 font-medium">Error</h3>
-                <p className="text-red-600">{callsError.message || "Failed to load callbacks"}</p>
+                <p className="text-red-600">{callsError instanceof Error ? callsError.message : "Failed to load callbacks"}</p>
                 <Button onClick={() => refetchCalls()} className="mt-2">
                   Try Again
                 </Button>

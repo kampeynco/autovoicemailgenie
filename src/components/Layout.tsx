@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { ChevronRight, Settings, History, Inbox, Home, Voicemail, HelpCircle, ArrowUpRight, ChevronLeft } from "lucide-react";
 
@@ -11,6 +11,7 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
 
   const handleSignOut = async () => {
@@ -20,6 +21,11 @@ const Layout = ({ children }: LayoutProps) => {
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
+  };
+
+  // Helper function to check if a route is active
+  const isActive = (path: string) => {
+    return location.pathname === path;
   };
 
   return (
@@ -50,7 +56,9 @@ const Layout = ({ children }: LayoutProps) => {
               <li>
                 <Link 
                   to="/dashboard" 
-                  className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
+                  className={`flex items-center px-3 py-2 rounded-md hover:bg-gray-100 ${
+                    isActive('/dashboard') ? 'bg-gray-100 text-[#004838]' : 'text-gray-700'
+                  }`}
                 >
                   <Home size={18} />
                   {!collapsed && <span className="ml-3">Dashboard</span>}
@@ -59,7 +67,9 @@ const Layout = ({ children }: LayoutProps) => {
               <li>
                 <Link 
                   to="/callbacks" 
-                  className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
+                  className={`flex items-center px-3 py-2 rounded-md hover:bg-gray-100 ${
+                    isActive('/callbacks') ? 'bg-gray-100 text-[#004838]' : 'text-gray-700'
+                  }`}
                 >
                   <Inbox size={18} />
                   {!collapsed && <span className="ml-3">Callbacks</span>}
@@ -68,7 +78,9 @@ const Layout = ({ children }: LayoutProps) => {
               <li>
                 <Link 
                   to="/voicemail" 
-                  className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
+                  className={`flex items-center px-3 py-2 rounded-md hover:bg-gray-100 ${
+                    isActive('/voicemail') ? 'bg-gray-100 text-[#004838]' : 'text-gray-700'
+                  }`}
                 >
                   <Voicemail size={18} />
                   {!collapsed && <span className="ml-3">Voice Mail</span>}
@@ -77,7 +89,9 @@ const Layout = ({ children }: LayoutProps) => {
               <li>
                 <Link 
                   to="/history" 
-                  className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
+                  className={`flex items-center px-3 py-2 rounded-md hover:bg-gray-100 ${
+                    isActive('/history') ? 'bg-gray-100 text-[#004838]' : 'text-gray-700'
+                  }`}
                 >
                   <History size={18} />
                   {!collapsed && <span className="ml-3">History</span>}
@@ -86,7 +100,9 @@ const Layout = ({ children }: LayoutProps) => {
               <li>
                 <Link 
                   to="/settings" 
-                  className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
+                  className={`flex items-center px-3 py-2 rounded-md hover:bg-gray-100 ${
+                    isActive('/settings') ? 'bg-gray-100 text-[#004838]' : 'text-gray-700'
+                  }`}
                 >
                   <Settings size={18} />
                   {!collapsed && <span className="ml-3">Settings</span>}
@@ -103,7 +119,9 @@ const Layout = ({ children }: LayoutProps) => {
               <li>
                 <Link 
                   to="/upgrade" 
-                  className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
+                  className={`flex items-center px-3 py-2 rounded-md hover:bg-gray-100 ${
+                    isActive('/upgrade') ? 'bg-gray-100 text-[#004838]' : 'text-gray-700'
+                  }`}
                 >
                   <ArrowUpRight size={18} />
                   {!collapsed && <span className="ml-3">Upgrade</span>}
@@ -112,7 +130,9 @@ const Layout = ({ children }: LayoutProps) => {
               <li>
                 <Link 
                   to="/feedback" 
-                  className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
+                  className={`flex items-center px-3 py-2 rounded-md hover:bg-gray-100 ${
+                    isActive('/feedback') ? 'bg-gray-100 text-[#004838]' : 'text-gray-700'
+                  }`}
                 >
                   <ChevronRight size={18} />
                   {!collapsed && <span className="ml-3">Feedback</span>}
@@ -121,7 +141,9 @@ const Layout = ({ children }: LayoutProps) => {
               <li>
                 <Link 
                   to="/faq" 
-                  className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
+                  className={`flex items-center px-3 py-2 rounded-md hover:bg-gray-100 ${
+                    isActive('/faq') ? 'bg-gray-100 text-[#004838]' : 'text-gray-700'
+                  }`}
                 >
                   <HelpCircle size={18} />
                   {!collapsed && <span className="ml-3">FAQ</span>}
