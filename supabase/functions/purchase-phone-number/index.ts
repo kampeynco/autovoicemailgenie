@@ -14,31 +14,43 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Make sure the request is authenticated
-  const authHeader = req.headers.get('Authorization');
-  if (!authHeader) {
-    return new Response(
-      JSON.stringify({ error: 'Missing Authorization header' }),
-      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
-
   try {
     // Initialize Supabase client with admin rights
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
     
-    // Initialize Supabase client with user token for authentication
-    const supabase = createClient(supabaseUrl, authHeader.replace('Bearer ', ''));
+    // Get JWT token from the authorization header
+    const authHeader = req.headers.get('Authorization');
     
-    // Get the authenticated user
+    if (!authHeader) {
+      console.error('No Authorization header found');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+    
+    // Extract the JWT token (remove 'Bearer ' prefix if present)
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Initialize Supabase client with the user's JWT token
+    const supabase = createClient(supabaseUrl, token);
+    
+    // Get the user from the JWT token
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     
     if (userError || !user) {
+      console.error('Error getting user:', userError);
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
     
@@ -51,7 +63,10 @@ serve(async (req) => {
     if (existingNumbers && existingNumbers.length > 0) {
       return new Response(
         JSON.stringify({ error: 'User already has a phone number', phoneNumber: existingNumbers[0] }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
     
@@ -89,7 +104,10 @@ serve(async (req) => {
       console.error('Error searching for phone numbers:', searchError);
       return new Response(
         JSON.stringify({ error: 'Failed to find available phone numbers' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
     
@@ -98,7 +116,10 @@ serve(async (req) => {
     if (!searchData.available_phone_numbers || searchData.available_phone_numbers.length === 0) {
       return new Response(
         JSON.stringify({ error: 'No phone numbers available' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { 
+          status: 404, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
     
@@ -128,7 +149,10 @@ serve(async (req) => {
       console.error('Error purchasing phone number:', twilioError);
       return new Response(
         JSON.stringify({ error: 'Failed to purchase phone number' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
     
@@ -154,7 +178,10 @@ serve(async (req) => {
       console.error('Error saving phone number:', phoneNumberError);
       return new Response(
         JSON.stringify({ error: 'Failed to save phone number' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
     
