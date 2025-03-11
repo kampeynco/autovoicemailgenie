@@ -1,5 +1,6 @@
+
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { ChevronRight, Settings, History, Inbox, Home, Voicemail, HelpCircle, ArrowUpRight, ChevronLeft } from "lucide-react";
 
@@ -47,49 +48,49 @@ const Layout = ({ children }: LayoutProps) => {
           <nav className="px-2">
             <ul className="space-y-1">
               <li>
-                <a 
-                  href="/dashboard" 
+                <Link 
+                  to="/dashboard" 
                   className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
                 >
                   <Home size={18} />
                   {!collapsed && <span className="ml-3">Dashboard</span>}
-                </a>
+                </Link>
               </li>
               <li>
-                <a 
-                  href="/callbacks" 
+                <Link 
+                  to="/callbacks" 
                   className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
                 >
                   <Inbox size={18} />
                   {!collapsed && <span className="ml-3">Callbacks</span>}
-                </a>
+                </Link>
               </li>
               <li>
-                <a 
-                  href="/voicemail" 
+                <Link 
+                  to="/voicemail" 
                   className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
                 >
                   <Voicemail size={18} />
                   {!collapsed && <span className="ml-3">Voice Mail</span>}
-                </a>
+                </Link>
               </li>
               <li>
-                <a 
-                  href="/history" 
+                <Link 
+                  to="/history" 
                   className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
                 >
                   <History size={18} />
                   {!collapsed && <span className="ml-3">History</span>}
-                </a>
+                </Link>
               </li>
               <li>
-                <a 
-                  href="/settings" 
+                <Link 
+                  to="/settings" 
                   className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
                 >
                   <Settings size={18} />
                   {!collapsed && <span className="ml-3">Settings</span>}
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>
@@ -100,31 +101,31 @@ const Layout = ({ children }: LayoutProps) => {
           <nav className="px-2">
             <ul className="space-y-1">
               <li>
-                <a 
-                  href="/upgrade" 
+                <Link 
+                  to="/upgrade" 
                   className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
                 >
                   <ArrowUpRight size={18} />
                   {!collapsed && <span className="ml-3">Upgrade</span>}
-                </a>
+                </Link>
               </li>
               <li>
-                <a 
-                  href="/feedback" 
+                <Link 
+                  to="/feedback" 
                   className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
                 >
                   <ChevronRight size={18} />
                   {!collapsed && <span className="ml-3">Feedback</span>}
-                </a>
+                </Link>
               </li>
               <li>
-                <a 
-                  href="/faq" 
+                <Link 
+                  to="/faq" 
                   className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
                 >
                   <HelpCircle size={18} />
                   {!collapsed && <span className="ml-3">FAQ</span>}
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>
