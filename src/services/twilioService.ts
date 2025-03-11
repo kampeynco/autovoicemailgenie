@@ -61,18 +61,21 @@ export async function purchasePhoneNumber(locationCode?: string, searchType?: st
 }
 
 export async function getUserPhoneNumber(): Promise<PhoneNumber | null> {
+  // Change from .single() to .maybeSingle() to handle the case of no phone number
   const { data, error } = await supabase
     .from('phone_numbers')
     .select('*')
-    .single();
+    .maybeSingle();
   
   if (error) {
-    if (error.code === 'PGRST116') {
-      // No phone number found
-      return null;
-    }
     console.error('Error getting phone number:', error);
     throw new Error(error.message);
+  }
+  
+  // If no phone number found, return null
+  if (!data) {
+    console.log('No phone number found for the user');
+    return null;
   }
   
   // Transform the data to match the PhoneNumber interface

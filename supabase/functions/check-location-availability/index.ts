@@ -1,54 +1,57 @@
 
+// Follow Deno's ES modules approach
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { corsHeaders } from "./utils/cors.ts";
 
-// CORS headers for the function
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-serve(async (req: Request) => {
+serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Parse request body to get the location code and type
-    const requestBody = await req.json();
-    const code = requestBody.code;
-    const type = requestBody.type || "areaCode"; // Default to area code if not specified
-    
-    console.log(`Received request to check ${type} ${code}`);
-    
-    // Validate the input parameters
-    if (!code || typeof code !== 'string') {
+    // Parse request
+    let body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      console.error("Error parsing request body:", e);
       return new Response(
-        JSON.stringify({ error: 'Invalid code format' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        JSON.stringify({ error: "Invalid request body", details: e.message }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
-    
-    if (type === "areaCode" && code.length !== 3) {
+
+    console.log("Request body:", body);
+
+    // Validate input parameters
+    const { code, type } = body;
+    if (!code) {
       return new Response(
-        JSON.stringify({ error: 'Area code must be 3 digits' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        JSON.stringify({ error: "Missing required parameter: code" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
-    
-    if (type === "zipCode" && code.length !== 5) {
+
+    if (!type || (type !== "areaCode" && type !== "zipCode")) {
       return new Response(
-        JSON.stringify({ error: 'Zip code must be 5 digits' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        JSON.stringify({ error: "Invalid or missing parameter: type (must be 'areaCode' or 'zipCode')" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+
+    // Validate input format based on type
+    if (type === "areaCode" && !/^\d{3}$/.test(code)) {
+      return new Response(
+        JSON.stringify({ error: "Area code must be exactly 3 digits" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+
+    if (type === "zipCode" && !/^\d{5}$/.test(code)) {
+      return new Response(
+        JSON.stringify({ error: "Zip code must be exactly 5 digits" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
 
@@ -60,120 +63,85 @@ serve(async (req: Request) => {
       
     // Check if credentials exist
     if (!accountSid || !authToken) {
-      console.error('Missing Twilio credentials');
+      console.error("Missing Twilio API credentials");
       return new Response(
-        JSON.stringify({ error: 'Missing API credentials', available: false }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        JSON.stringify({
+          error: "Server configuration error",
+          details: "Missing Twilio API credentials"
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
     
     // Prepare search parameters using URLSearchParams
     const searchParams = new URLSearchParams({
-      Limit: '1',
-      VoiceEnabled: 'true',
+      PageSize: "1", // We only need to know if any numbers are available
     });
-    
-    // Add appropriate search parameter based on search type
+
+    // Add appropriate search parameter based on type
     if (type === "areaCode") {
-      searchParams.append('AreaCode', code);
-      console.log(`Searching for phone numbers with area code: ${code}`);
+      searchParams.append("AreaCode", code);
     } else {
-      searchParams.append('InPostalCode', code);
-      searchParams.append('Distance', '100'); // Hardcoded distance to 100 miles for postal code searches
-      console.log(`Searching for phone numbers with postal code: ${code} (within 100 miles)`);
+      searchParams.append("InPostalCode", code);
     }
+
+    const searchParamsString = searchParams.toString();
+    console.log(`Search parameters: ${searchParamsString}`);
+
+    // Make request to Twilio API
+    const twilioApiUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/AvailablePhoneNumbers/US/Local.json?${searchParamsString}`;
     
-    // Create the full search URL
-    const searchUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/AvailablePhoneNumbers/US/Local.json?${searchParams.toString()}`;
-    console.log(`Search URL: ${searchUrl}`);
+    console.log(`Making request to Twilio API: ${twilioApiUrl}`);
     
-    // Create Authorization header with base64 encoded credentials
-    const authHeader = 'Basic ' + btoa(`${accountSid}:${authToken}`);
-    console.log(`Auth header created (first 10 chars): ${authHeader.substring(0, 15)}...`);
-    
-    // Search for available phone numbers
-    console.log('Sending request to Twilio API...');
-    const searchResponse = await fetch(
-      searchUrl,
-      {
-        headers: {
-          'Authorization': authHeader,
-        },
-      }
-    );
-    
-    console.log(`Twilio API response status: ${searchResponse.status}`);
-    
-    // Handle API error responses
-    if (!searchResponse.ok) {
-      const errorText = await searchResponse.text();
-      console.error(`Twilio API error response (${searchResponse.status}): ${errorText}`);
+    const twilioResponse = await fetch(twilioApiUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${btoa(`${accountSid}:${authToken}`)}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    // Process Twilio response
+    if (!twilioResponse.ok) {
+      const errorText = await twilioResponse.text();
+      console.error(`Twilio API error (${twilioResponse.status}):`, errorText);
       
-      let errorData;
-      try {
-        errorData = JSON.parse(errorText);
-      } catch (e) {
-        errorData = { message: errorText };
-      }
-      
-      // Special handling for authentication errors
-      if (searchResponse.status === 401 || searchResponse.status === 403) {
-        console.error('Authentication failed with Twilio API - check your credentials');
-        return new Response(
-          JSON.stringify({ 
-            error: 'Authentication failed with phone provider API', 
-            details: errorData.message || 'Invalid credentials',
-            available: false 
-          }),
-          { 
-            status: searchResponse.status, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-      }
-      
-      console.error('Error searching for phone numbers:', errorData);
       return new Response(
-        JSON.stringify({ 
-          error: `Phone provider API error: ${errorData.message || errorData.code || 'Unknown error'}`, 
-          available: false 
+        JSON.stringify({
+          error: "Error checking availability with Twilio",
+          status: twilioResponse.status,
+          details: errorText
         }),
-        { 
-          status: searchResponse.status, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 502 }
       );
     }
-    
-    // Parse successful response
-    console.log('Successfully received response from Twilio API');
-    const searchData = await searchResponse.json();
-    const isAvailable = searchData.available_phone_numbers && 
-                         searchData.available_phone_numbers.length > 0;
-    
-    console.log(`Availability check result for ${type} ${code}: ${isAvailable ? 'Available' : 'Not available'}`);
-    if (isAvailable) {
-      console.log(`Found ${searchData.available_phone_numbers.length} available numbers`);
-      console.log(`First available number: ${searchData.available_phone_numbers[0].phone_number}`);
-    }
-    
-    // Return availability result
+
+    const twilioData = await twilioResponse.json();
+    console.log(`Twilio response status: ${twilioResponse.status}`);
+    console.log(`Available phone numbers count: ${twilioData.available_phone_numbers?.length || 0}`);
+
+    // Check if any phone numbers are available
+    const available = twilioData.available_phone_numbers && 
+                      twilioData.available_phone_numbers.length > 0;
+
+    // Return the result
     return new Response(
-      JSON.stringify({ available: isAvailable }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ 
+        available,
+        count: twilioData.available_phone_numbers?.length || 0
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-    
+
   } catch (error) {
-    console.error('Error checking availability:', error);
+    // Handle any unexpected errors
+    console.error("Unexpected error:", error);
     return new Response(
-      JSON.stringify({ error: error.message || 'Unknown error', available: false }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      JSON.stringify({ 
+        error: "Internal server error", 
+        details: error.message 
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }
 });
