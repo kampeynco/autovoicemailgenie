@@ -15,6 +15,20 @@ serve(async (req) => {
   }
 
   try {
+    // Parse request body to get the area code if provided
+    let body = {};
+    try {
+      if (req.body) {
+        const bodyText = await req.text();
+        if (bodyText) {
+          body = JSON.parse(bodyText);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse request body:', e);
+      // Continue even if body parsing fails
+    }
+    
     // Initialize Supabase client with admin rights
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -85,12 +99,21 @@ serve(async (req) => {
     const webhookBaseUrl = Deno.env.get('FUNCTION_BASE_URL') || 
       `https://${supabaseUrl.replace('https://', '')}/functions/v1`;
 
-    // Prepare Twilio API request
-    const twilioEndpoint = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/IncomingPhoneNumbers.json`;
+    // Extract area code from request body if provided
+    const areaCode = body && (body as any).areaCode;
     
-    // Search for available phone numbers (US numbers for now)
+    // Prepare search URL for available phone numbers
+    let searchUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/AvailablePhoneNumbers/US/Local.json?Limit=1&VoiceEnabled=true`;
+    
+    // Add area code to search if provided
+    if (areaCode) {
+      searchUrl += `&AreaCode=${areaCode}`;
+      console.log(`Searching for phone numbers with area code: ${areaCode}`);
+    }
+    
+    // Search for available phone numbers
     const searchResponse = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/AvailablePhoneNumbers/US/Local.json?Limit=1&VoiceEnabled=true`,
+      searchUrl,
       {
         headers: {
           'Authorization': `Basic ${btoa(`${accountSid}:${authToken}`)}`,
@@ -115,7 +138,11 @@ serve(async (req) => {
     
     if (!searchData.available_phone_numbers || searchData.available_phone_numbers.length === 0) {
       return new Response(
-        JSON.stringify({ error: 'No phone numbers available' }),
+        JSON.stringify({ 
+          error: areaCode 
+            ? `No phone numbers available with area code ${areaCode}` 
+            : 'No phone numbers available' 
+        }),
         { 
           status: 404, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -135,7 +162,7 @@ serve(async (req) => {
       StatusCallbackMethod: 'POST',
     });
     
-    const response = await fetch(twilioEndpoint, {
+    const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/IncomingPhoneNumbers.json`, {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${btoa(`${accountSid}:${authToken}`)}`,

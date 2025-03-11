@@ -3,10 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { PhoneNumber, Call, CallRecording, CallWithRecording } from "@/types/twilio";
 import { useAuth } from "@/contexts/AuthContext";
 
-export async function purchasePhoneNumber(): Promise<PhoneNumber> {
-  // Call the edge function with authentication
+export async function purchasePhoneNumber(areaCode?: string): Promise<PhoneNumber> {
+  // Call the edge function with authentication and optional area code
   const { data, error } = await supabase.functions.invoke('purchase-phone-number', {
     method: 'POST',
+    body: areaCode ? { areaCode } : {},
   });
   
   if (error) {
