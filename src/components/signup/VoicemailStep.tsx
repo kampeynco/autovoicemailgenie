@@ -8,6 +8,13 @@ import { useVoicemailRecorder } from "@/hooks/useVoicemailRecorder";
 import RecordingUI from "./RecordingUI";
 import FileUploadUI from "./FileUploadUI";
 import AudioDisplay from "./AudioDisplay";
+import { Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface VoicemailStepProps {
   onComplete: () => Promise<void>;
@@ -29,6 +36,17 @@ const VoicemailStep = ({ onComplete, isSubmitting }: VoicemailStepProps) => {
   } = useVoicemailRecorder();
 
   const handleFileSelected = (file: File) => {
+    // Check if file is of the right type
+    const acceptedTypes = ['audio/mpeg', 'audio/wav', 'audio/x-aiff'];
+    if (!acceptedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload an MP3, WAV, or AIFF file.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setUploadedFile(file);
     clearRecording(); // Clear any recorded audio
   };
@@ -97,7 +115,20 @@ const VoicemailStep = ({ onComplete, isSubmitting }: VoicemailStepProps) => {
     <form onSubmit={handleSubmit}>
       <div className="space-y-6">
         <div className="text-center">
-          <h2 className="text-lg font-medium text-[#073127]">Voicemail Message</h2>
+          <div className="flex items-center justify-center gap-2">
+            <h2 className="text-lg font-medium text-[#073127]">Voicemail Message</h2>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-gray-500 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p>Voicemails should be no more than 30 seconds.</p>
+                  <p>Accepted file types: MP3, WAV, or AIFF.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <p className="mt-1 text-sm text-gray-500">
             Record or upload a voicemail message for your committee.
           </p>

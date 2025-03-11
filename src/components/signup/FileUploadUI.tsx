@@ -15,15 +15,7 @@ const FileUploadUI = ({ onFileSelected }: FileUploadUIProps) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (file.type.startsWith('audio/')) {
-        onFileSelected(file);
-      } else {
-        toast({
-          title: "Invalid File Type",
-          description: "Please upload an audio file.",
-          variant: "destructive",
-        });
-      }
+      onFileSelected(file);
     }
   };
 
@@ -45,7 +37,7 @@ const FileUploadUI = ({ onFileSelected }: FileUploadUIProps) => {
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
-        accept="audio/*"
+        accept="audio/mpeg,audio/wav,audio/x-aiff"
         className="hidden"
       />
     </>
