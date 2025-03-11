@@ -1,0 +1,7 @@
+
+{
+  "name": "check-area-code",
+  "version": "1.0.0",
+  "description": "Checks if phone numbers are available with a specific area code",
+  "main": "index.ts"
+}

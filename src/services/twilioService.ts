@@ -3,6 +3,25 @@ import { supabase } from "@/integrations/supabase/client";
 import { PhoneNumber, Call, CallRecording, CallWithRecording } from "@/types/twilio";
 import { useAuth } from "@/contexts/AuthContext";
 
+export async function checkAreaCodeAvailability(areaCode: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase.functions.invoke('check-area-code', {
+      method: 'POST',
+      body: { areaCode },
+    });
+    
+    if (error) {
+      console.error('Error checking area code availability:', error);
+      return false;
+    }
+    
+    return data.available;
+  } catch (error) {
+    console.error('Error checking area code availability:', error);
+    return false;
+  }
+}
+
 export async function purchasePhoneNumber(areaCode?: string): Promise<PhoneNumber> {
   // Ensure areaCode is not empty if provided
   const validAreaCode = areaCode && areaCode.trim() !== '' ? areaCode.trim() : undefined;
