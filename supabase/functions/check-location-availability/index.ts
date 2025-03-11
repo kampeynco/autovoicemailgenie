@@ -71,16 +71,25 @@ serve(async (req: Request) => {
       );
     }
     
-    // Prepare search URL based on search type
-    let searchUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/AvailablePhoneNumbers/US/Local.json?Limit=1&VoiceEnabled=true`;
+    // Prepare search parameters using URLSearchParams
+    const searchParams = new URLSearchParams({
+      Limit: '1',
+      VoiceEnabled: 'true',
+    });
     
+    // Add appropriate search parameter based on search type
     if (type === "areaCode") {
-      searchUrl += `&AreaCode=${code}`;
+      searchParams.append('AreaCode', code);
       console.log(`Searching for phone numbers with area code: ${code}`);
     } else {
-      searchUrl += `&InPostalCode=${code}`;
-      console.log(`Searching for phone numbers with postal code: ${code}`);
+      searchParams.append('InPostalCode', code);
+      searchParams.append('Distance', '100'); // Hardcoded distance to 100 miles for postal code searches
+      console.log(`Searching for phone numbers with postal code: ${code} (within 100 miles)`);
     }
+    
+    // Create the full search URL
+    const searchUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/AvailablePhoneNumbers/US/Local.json?${searchParams.toString()}`;
+    console.log(`Search URL: ${searchUrl}`);
     
     // Search for available phone numbers
     const searchResponse = await fetch(
@@ -88,7 +97,6 @@ serve(async (req: Request) => {
       {
         headers: {
           'Authorization': `Basic ${btoa(`${accountSid}:${authToken}`)}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
         },
       }
     );
@@ -121,6 +129,10 @@ serve(async (req: Request) => {
                          searchData.available_phone_numbers.length > 0;
     
     console.log(`Availability check result for ${type} ${code}: ${isAvailable ? 'Available' : 'Not available'}`);
+    if (isAvailable) {
+      console.log(`Found ${searchData.available_phone_numbers.length} available numbers`);
+      console.log(`First available number: ${searchData.available_phone_numbers[0].phone_number}`);
+    }
     
     // Return availability result
     return new Response(
