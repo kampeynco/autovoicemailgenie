@@ -10,12 +10,16 @@ import {
   Users,
   Bell,
   LifeBuoy,
-  HelpCircle
+  HelpCircle,
+  LogOut
 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
+  const { user, signOut, loading } = useAuth();
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutGrid },
@@ -102,13 +106,28 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   <div className="flex items-center px-2 py-2">
                     <div className="flex-shrink-0">
                       <Avatar className="h-9 w-9 rounded-full bg-[#004838]">
-                        <div className="text-xs font-medium text-white">JD</div>
+                        <div className="text-xs font-medium text-white">
+                          {user ? user.email?.charAt(0).toUpperCase() : "U"}
+                        </div>
                       </Avatar>
                     </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-700">John Doe</p>
-                      <p className="text-xs font-medium text-gray-500">Admin</p>
+                    <div className="ml-3 flex-1">
+                      <p className="text-sm font-medium text-gray-700 truncate">
+                        {user ? user.email : "User"}
+                      </p>
+                      <p className="text-xs font-medium text-gray-500">Account</p>
                     </div>
+                    {user && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={signOut}
+                        className="ml-2"
+                        title="Sign out"
+                      >
+                        <LogOut className="h-5 w-5 text-gray-400 hover:text-[#004838]" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -128,7 +147,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 </button>
                 <div className="md:hidden">
                   <Avatar className="h-8 w-8 rounded-full bg-[#004838]">
-                    <div className="text-xs font-medium text-white">JD</div>
+                    <div className="text-xs font-medium text-white">
+                      {user ? user.email?.charAt(0).toUpperCase() : "U"}
+                    </div>
                   </Avatar>
                 </div>
               </div>
