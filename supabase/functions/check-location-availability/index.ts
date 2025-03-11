@@ -49,15 +49,27 @@ serve(async (req: Request) => {
         }
       );
     }
-    
+
     // Get Twilio credentials based on environment
     const isDevelopment = Deno.env.get('ENVIRONMENT') !== 'production';
     const accountSid = isDevelopment 
-      ? Deno.env.get('TWILIO_ACCOUNT_SID_TEST')! 
-      : Deno.env.get('TWILIO_ACCOUNT_SID_LIVE')!;
+      ? Deno.env.get('TWILIO_ACCOUNT_SID_TEST') 
+      : Deno.env.get('TWILIO_ACCOUNT_SID_LIVE');
     const authToken = isDevelopment 
-      ? Deno.env.get('TWILIO_AUTH_TOKEN_TEST')! 
-      : Deno.env.get('TWILIO_AUTH_TOKEN_LIVE')!;
+      ? Deno.env.get('TWILIO_AUTH_TOKEN_TEST') 
+      : Deno.env.get('TWILIO_AUTH_TOKEN_LIVE');
+      
+    // Check if credentials exist
+    if (!accountSid || !authToken) {
+      console.error('Missing Twilio credentials');
+      return new Response(
+        JSON.stringify({ error: 'Missing API credentials', available: false }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
     
     // Prepare search URL based on search type
     let searchUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/AvailablePhoneNumbers/US/Local.json?Limit=1&VoiceEnabled=true`;
@@ -81,13 +93,24 @@ serve(async (req: Request) => {
       }
     );
     
+    // Handle API error responses
     if (!searchResponse.ok) {
-      const searchError = await searchResponse.json();
-      console.error('Error searching for phone numbers:', searchError);
+      const errorText = await searchResponse.text();
+      let errorData;
+      try {
+        errorData = JSON.parse(errorText);
+      } catch (e) {
+        errorData = { message: errorText };
+      }
+      
+      console.error('Error searching for phone numbers:', errorData);
       return new Response(
-        JSON.stringify({ error: 'Failed to check availability', available: false }),
+        JSON.stringify({ 
+          error: `Twilio API error: ${errorData.message || errorData.code || 'Unknown error'}`, 
+          available: false 
+        }),
         { 
-          status: 500, 
+          status: searchResponse.status, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
@@ -96,6 +119,8 @@ serve(async (req: Request) => {
     const searchData = await searchResponse.json();
     const isAvailable = searchData.available_phone_numbers && 
                          searchData.available_phone_numbers.length > 0;
+    
+    console.log(`Availability check result for ${type} ${code}: ${isAvailable ? 'Available' : 'Not available'}`);
     
     // Return availability result
     return new Response(
@@ -106,7 +131,7 @@ serve(async (req: Request) => {
   } catch (error) {
     console.error('Error checking availability:', error);
     return new Response(
-      JSON.stringify({ error: error.message, available: false }),
+      JSON.stringify({ error: error.message || 'Unknown error', available: false }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
