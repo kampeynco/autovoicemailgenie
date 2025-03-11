@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import AccountStep from "@/components/signup/AccountStep";
 import CommitteeStep from "@/components/signup/CommitteeStep";
 import VoicemailStep from "@/components/signup/VoicemailStep";
+import { Eye, EyeOff } from "lucide-react";
 
 const SignUp = () => {
   const { signUp } = useAuth();
@@ -86,53 +87,87 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 bg-gray-50">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-[#073127]">
-            Create your account
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Or{" "}
-            <Link to="/auth/signin" className="font-medium text-[#004838] hover:text-[#003026]">
-              sign in to your existing account
+    <div className="flex min-h-screen">
+      {/* Left panel */}
+      <div className="hidden md:flex md:w-1/2 bg-[#004838] text-white flex-col justify-center px-12">
+        <div className="mb-8">
+          <h1 className="text-2xl font-semibold flex items-center">
+            <span className="mr-2">Callback Engine</span>
+          </h1>
+        </div>
+        <h2 className="text-4xl font-bold mb-4">Create an account</h2>
+        <p className="text-lg mb-12">
+          Join Callback Engine to streamline your campaign voicemail drops and reach more donors with less effort.
+        </p>
+        <div>
+          <p className="text-white/90">
+            Already have an account?{" "}
+            <Link to="/auth/signin" className="underline font-medium">
+              Sign in
             </Link>
           </p>
         </div>
-        
-        {/* Steps indicator */}
-        <div className="flex justify-between items-center">
-          {steps.map((step) => (
-            <div 
-              key={step.id} 
-              className={`flex-1 text-center ${
-                currentStep === step.id 
-                  ? "text-[#004838] font-medium" 
-                  : currentStep > step.id 
-                    ? "text-[#004838]" 
-                    : "text-gray-400"
-              }`}
-            >
-              <div 
-                className={`w-8 h-8 mx-auto flex items-center justify-center rounded-full ${
-                  currentStep === step.id 
-                    ? "bg-[#004838] text-white" 
-                    : currentStep > step.id 
-                      ? "bg-[#004838] text-white" 
-                      : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                {step.id}
-              </div>
-              <p className="mt-1 text-sm">{step.name}</p>
+      </div>
+      
+      {/* Right panel */}
+      <div className="w-full md:w-1/2 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md space-y-6">
+          {/* Mobile-only logo and header */}
+          <div className="block md:hidden text-center">
+            <h1 className="text-2xl font-semibold text-[#004838] mb-6">Callback Engine</h1>
+          </div>
+          
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Get started</h2>
+            <p className="text-gray-600 mb-6">
+              Enter the details below to create your account today
+            </p>
+            
+            {/* Steps indicator */}
+            <div className="flex justify-between items-center mb-8">
+              {steps.map((step) => (
+                <div 
+                  key={step.id} 
+                  className={`flex-1 text-center ${
+                    currentStep === step.id 
+                      ? "text-[#004838] font-medium" 
+                      : currentStep > step.id 
+                        ? "text-[#004838]" 
+                        : "text-gray-400"
+                  }`}
+                >
+                  <div 
+                    className={`w-8 h-8 mx-auto flex items-center justify-center rounded-full ${
+                      currentStep === step.id 
+                        ? "bg-[#004838] text-white" 
+                        : currentStep > step.id 
+                          ? "bg-[#004838] text-white" 
+                          : "bg-gray-200 text-gray-600"
+                    }`}
+                  >
+                    {step.id}
+                  </div>
+                  <p className="mt-1 text-sm">{step.name}</p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        
-        <div className="mt-8 bg-white py-8 px-4 shadow rounded-lg sm:px-10">
-          {currentStep === 1 && <AccountStep />}
-          {currentStep === 2 && <CommitteeStep />}
-          {currentStep === 3 && <VoicemailStep onComplete={handleComplete} isSubmitting={isSubmitting} />}
+            
+            <div className="bg-white rounded-lg">
+              {currentStep === 1 && <AccountStep />}
+              {currentStep === 2 && <CommitteeStep />}
+              {currentStep === 3 && <VoicemailStep onComplete={handleComplete} isSubmitting={isSubmitting} />}
+            </div>
+            
+            {/* Mobile-only "Sign in" link */}
+            <div className="mt-6 text-center block md:hidden">
+              <p className="text-gray-600">
+                Already have an account?{" "}
+                <Link to="/auth/signin" className="font-medium text-[#004838] hover:text-[#003026]">
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
