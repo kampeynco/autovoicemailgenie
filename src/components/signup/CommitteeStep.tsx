@@ -3,9 +3,15 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useSignUp } from "@/contexts/SignUpContext";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const CommitteeStep = () => {
   const { data, updateData, nextStep, prevStep } = useSignUp();
@@ -68,21 +74,19 @@ const CommitteeStep = () => {
     <form onSubmit={handleSubmit}>
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label>Committee Type</Label>
-          <RadioGroup 
+          <Label htmlFor="committeeType">Committee Type</Label>
+          <Select 
             value={data.committeeType} 
             onValueChange={(value) => updateData({ committeeType: value as "organization" | "candidate" })}
-            className="flex flex-col space-y-2"
           >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="organization" id="organization" />
-              <Label htmlFor="organization" className="cursor-pointer">Organization</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="candidate" id="candidate" />
-              <Label htmlFor="candidate" className="cursor-pointer">Candidate</Label>
-            </div>
-          </RadioGroup>
+            <SelectTrigger id="committeeType" className="h-12">
+              <SelectValue placeholder="Select committee type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="organization">Organization</SelectItem>
+              <SelectItem value="candidate">Candidate</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         
         {data.committeeType === "organization" && (
