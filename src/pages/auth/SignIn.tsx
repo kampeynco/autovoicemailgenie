@@ -6,30 +6,29 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Eye, EyeOff } from "lucide-react";
-
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { signIn } = useAuth();
-  const { toast } = useToast();
+  const {
+    signIn
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!email || !password) {
       toast({
         title: "Error",
         description: "Please enter both email and password",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-    
     setIsSubmitting(true);
-    
     try {
       await signIn(email, password);
       navigate("/dashboard");
@@ -39,17 +38,14 @@ const SignIn = () => {
       setIsSubmitting(false);
     }
   };
-
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-
-  return (
-    <div className="flex min-h-screen">
+  return <div className="flex min-h-screen">
       {/* Left panel */}
       <div className="hidden md:flex md:w-1/2 bg-[#004838] text-white flex-col justify-center px-12">
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold">Callback Engine</h1>
+          <h1 className="text-2xl font-semibold text-white">Callback Engine</h1>
         </div>
         <h2 className="text-4xl font-bold mb-4">Welcome back</h2>
         <p className="text-lg mb-12">
@@ -83,17 +79,7 @@ const SignIn = () => {
                 <Label htmlFor="email" className="text-gray-700 font-medium">
                   Email
                 </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-12"
-                  placeholder="you@example.com"
-                />
+                <Input id="email" name="email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} className="h-12" placeholder="you@example.com" />
               </div>
 
               <div className="space-y-2">
@@ -106,44 +92,18 @@ const SignIn = () => {
                   </Link>
                 </div>
                 <div className="relative">
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-12 pr-10"
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
-                    )}
+                  <Input id="password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} className="h-12 pr-10" placeholder="••••••••" />
+                  <button type="button" onClick={togglePasswordVisibility} className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                    {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
                   </button>
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                className="w-full h-12 bg-[#004838] hover:bg-[#003026] font-medium"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center justify-center">
+              <Button type="submit" className="w-full h-12 bg-[#004838] hover:bg-[#003026] font-medium" disabled={isSubmitting}>
+                {isSubmitting ? <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
                     Signing in...
-                  </div>
-                ) : (
-                  "Sign In"
-                )}
+                  </div> : "Sign In"}
               </Button>
             </form>
             
@@ -159,8 +119,6 @@ const SignIn = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default SignIn;
