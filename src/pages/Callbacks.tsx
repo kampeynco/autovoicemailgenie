@@ -8,30 +8,12 @@ import {
   formatPhoneNumber,
   useRealTimeCallbacks
 } from "@/services/twilioService";
-import { PhoneNumber, CallWithRecording } from "@/types/twilio";
 import { toast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { 
-  Phone, 
-  PhoneIncoming, 
-  Clock, 
-  Play, 
-  Pause, 
-  Calendar, 
-  FileText,
-  Loader2
-} from "lucide-react";
-import CallbacksList from "@/components/callbacks/CallbacksList";
 import NoPhoneNumber from "@/components/callbacks/NoPhoneNumber";
+import PhoneNumberCard from "@/components/callbacks/PhoneNumberCard";
+import CallbacksTabs from "@/components/callbacks/CallbacksTabs";
+import CallbacksLoading from "@/components/callbacks/CallbacksLoading";
+import CallbacksError from "@/components/callbacks/CallbacksError";
 
 const Callbacks: React.FC = () => {
   const queryClient = useQueryClient();
@@ -50,7 +32,7 @@ const Callbacks: React.FC = () => {
   
   // Fetch calls if phone number exists
   const { 
-    data: calls = [], // Provide default empty array
+    data: calls = [], 
     isLoading: isLoadingCalls,
     error: callsError,
     refetch: refetchCalls
@@ -109,17 +91,10 @@ const Callbacks: React.FC = () => {
   if (phoneNumberError) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-red-50 p-4 rounded-md mb-6">
-          <h2 className="text-red-800 font-medium">Error</h2>
-          <p className="text-red-600">
-            {phoneNumberError instanceof Error 
-              ? phoneNumberError.message 
-              : "Failed to load phone number"}
-          </p>
-          <Button onClick={() => refetchPhoneNumber()} className="mt-2">
-            Try Again
-          </Button>
-        </div>
+        <CallbacksError 
+          error={phoneNumberError} 
+          onRetry={refetchPhoneNumber} 
+        />
       </div>
     );
   }
@@ -128,7 +103,7 @@ const Callbacks: React.FC = () => {
   if (isLoadingPhoneNumber) {
     return (
       <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-[#004838]" />
+        <CallbacksLoading />
       </div>
     );
   }
@@ -149,79 +124,15 @@ const Callbacks: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col space-y-6">
         {/* Phone Number Card */}
-        {phoneNumber && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Campaign Phone Number</CardTitle>
-              <CardDescription>
-                Supporters will call this number to leave callbacks
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2 text-2xl font-semibold text-[#004838]">
-                <Phone className="h-5 w-5" />
-                {formatPhoneNumber(phoneNumber.phone_number)}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        <PhoneNumberCard phoneNumber={phoneNumber} />
         
         {/* Callbacks Tabs */}
-        <Tabs defaultValue="all">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold text-[#073127]">Callbacks</h2>
-            <TabsList>
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="unheard">Unheard</TabsTrigger>
-            </TabsList>
-          </div>
-          
-          <TabsContent value="all">
-            {isLoadingCalls ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-[#004838]" />
-              </div>
-            ) : callsError ? (
-              <div className="bg-red-50 p-4 rounded-md">
-                <h3 className="text-red-800 font-medium">Error</h3>
-                <p className="text-red-600">{callsError instanceof Error ? callsError.message : "Failed to load callbacks"}</p>
-                <Button onClick={() => refetchCalls()} className="mt-2">
-                  Try Again
-                </Button>
-              </div>
-            ) : calls && calls.length > 0 ? (
-              <CallbacksList calls={calls} />
-            ) : (
-              <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg">
-                <PhoneIncoming className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-4 text-lg font-medium text-gray-900">No callbacks yet</h3>
-                <p className="mt-2 text-gray-500">
-                  When supporters call your campaign number, their callbacks will appear here.
-                </p>
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="unheard">
-            {isLoadingCalls ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-[#004838]" />
-              </div>
-            ) : calls && calls.filter(call => call.has_recording).length > 0 ? (
-              <CallbacksList 
-                calls={calls.filter(call => call.has_recording)} 
-              />
-            ) : (
-              <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg">
-                <PhoneIncoming className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-4 text-lg font-medium text-gray-900">No unheard callbacks</h3>
-                <p className="mt-2 text-gray-500">
-                  You've listened to all your callbacks. Great job!
-                </p>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+        <CallbacksTabs
+          calls={calls}
+          isLoading={isLoadingCalls}
+          error={callsError}
+          onRefetch={refetchCalls}
+        />
       </div>
     </div>
   );
