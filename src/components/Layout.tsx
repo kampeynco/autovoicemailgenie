@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -58,11 +57,11 @@ const Layout = ({ children }: LayoutProps) => {
               </li>
               <li>
                 <a 
-                  href="/campaigns" 
+                  href="/callbacks" 
                   className="flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-100"
                 >
                   <Inbox size={18} />
-                  {!collapsed && <span className="ml-3">Campaigns</span>}
+                  {!collapsed && <span className="ml-3">Callbacks</span>}
                 </a>
               </li>
               <li>
