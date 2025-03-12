@@ -37,7 +37,7 @@ const FileUploadUI = ({ onFileSelected }: FileUploadUIProps) => {
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
-        accept="audio/mpeg,audio/wav,audio/x-aiff"
+        accept="audio/mpeg,audio/wav,audio/x-aiff,audio/webm"
         className="hidden"
       />
     </>

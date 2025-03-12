@@ -40,11 +40,11 @@ const VoicemailStep = ({
 
   const handleFileSelected = (file: File) => {
     // Check if file is of the right type
-    const acceptedTypes = ['audio/mpeg', 'audio/wav', 'audio/x-aiff'];
+    const acceptedTypes = ['audio/mpeg', 'audio/wav', 'audio/x-aiff', 'audio/webm'];
     if (!acceptedTypes.includes(file.type)) {
       toast({
         title: "Invalid File Type",
-        description: "Please upload an MP3, WAV, or AIFF file.",
+        description: "Please upload an MP3, WAV, WEBM, or AIFF file.",
         variant: "destructive"
       });
       return;
@@ -55,6 +55,39 @@ const VoicemailStep = ({
 
   const clearFile = () => {
     setUploadedFile(null);
+  };
+
+  const ensureVoicemailsBucketExists = async () => {
+    try {
+      // Check if the bucket already exists
+      const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+      
+      if (listError) {
+        console.error("Error checking buckets:", listError);
+        return false;
+      }
+
+      const bucketExists = buckets?.some(bucket => bucket.name === 'voicemails');
+      
+      if (!bucketExists) {
+        // Create the bucket if it doesn't exist
+        const { error: createError } = await supabase.storage.createBucket('voicemails', {
+          public: true,
+        });
+        
+        if (createError) {
+          console.error("Error creating voicemails bucket:", createError);
+          return false;
+        }
+        
+        console.log("Voicemails bucket created successfully");
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Bucket check/creation error:", error);
+      return false;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -124,7 +157,7 @@ const VoicemailStep = ({
                 <RecordingUI isRecording={isRecording} onStartRecording={startRecording} onStopRecording={stopRecording} />
                 <p className="text-sm text-gray-500">Or</p>
                 <FileUploadUI onFileSelected={handleFileSelected} />
-                <p className="text-xs text-gray-500 mt-2">Accepted file types: MP3, WAV, or AIFF.</p>
+                <p className="text-xs text-gray-500 mt-2">Accepted file types: MP3, WAV, WEBM, or AIFF.</p>
               </div>}
             
             <AudioDisplay blob={recordedBlob} file={uploadedFile} onClearRecording={clearRecording} onClearFile={clearFile} />

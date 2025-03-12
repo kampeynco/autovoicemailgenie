@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -65,7 +66,7 @@ const SignUp = () => {
       // 3. Upload the voicemail file only after user is created
       if (data.voicemailFile) {
         try {
-          // Make sure the voicemails bucket exists
+          // Check if the voicemails bucket exists
           const { data: buckets } = await supabase.storage.listBuckets();
           const voicemailsBucketExists = buckets?.some(bucket => bucket.name === 'voicemails');
           
@@ -76,12 +77,18 @@ const SignUp = () => {
             });
           }
           
-          // Generate a unique filename
-          const fileName = `${user.id}/voicemail_${Date.now()}.${data.voicemailFile.name.split('.').pop()}`;
+          // Generate a unique filename with proper extension
+          const fileExtension = data.voicemailFile.name.split('.').pop() || 
+                               (data.voicemailFile.type === 'audio/webm' ? 'webm' : 
+                                data.voicemailFile.type === 'audio/mpeg' ? 'mp3' : 
+                                data.voicemailFile.type === 'audio/wav' ? 'wav' : 'audio');
+          
+          const fileName = `${user.id}/voicemail_${Date.now()}.${fileExtension}`;
           
           // Upload to Supabase Storage with explicit options
           const {
-            error: uploadError
+            error: uploadError,
+            data: uploadData
           } = await supabase.storage.from('voicemails').upload(fileName, data.voicemailFile, {
             cacheControl: '3600',
             upsert: false
