@@ -1,66 +1,54 @@
-
 import { cn } from "@/lib/utils";
 import {
   IconAdjustmentsBolt,
-  IconCloud,
-  IconCurrencyDollar,
-  IconEaseInOut,
-  IconHeart,
-  IconHelp,
-  IconRouteAltLeft,
-  IconTerminal2,
+  IconBrandAirtable,
+  IconChartBar,
+  IconDeviceMobile,
+  IconMicrophone,
+  IconPhone,
+  IconPlayerRecord,
+  IconSend,
 } from "@tabler/icons-react";
 
 export function FeaturesSectionWithHoverEffects() {
   const features = [
     {
-      title: "Built for developers",
+      title: "Simple \"set-and-forget\" system",
       description:
-        "Built for engineers, developers, dreamers, thinkers and doers.",
-      icon: <IconTerminal2 />,
+        "Schedule recurring voicemail campaigns for political fundraising with minimal effort.",
+      icon: <IconSend />,
     },
     {
-      title: "Ease of use",
+      title: "Higher response rates",
       description:
-        "It's as easy as using an Apple, and as expensive as buying one.",
-      icon: <IconEaseInOut />,
+        "Get significantly better response rates compared to traditional call time methods.",
+      icon: <IconChartBar />,
     },
     {
-      title: "Pricing like no other",
+      title: "Dedicated phone number",
+      description: "Every account includes a dedicated phone number and voice mailbox for callbacks.",
+      icon: <IconPhone />,
+    },
+    {
+      title: "Unlimited voicemail recordings",
+      description: "Create unlimited voicemail recordings for different messages and campaigns.",
+      icon: <IconMicrophone />,
+    },
+    {
+      title: "Call Tracking and Monitoring",
       description:
-        "Our prices are best in the market. No cap, no lock, no credit card required.",
-      icon: <IconCurrencyDollar />,
+        "Comprehensive tracking and monitoring of all callback activities in real-time.",
+      icon: <IconPlayerRecord />,
     },
     {
-      title: "100% Uptime guarantee",
-      description: "We just cannot be taken down by anyone.",
-      icon: <IconCloud />,
-    },
-    {
-      title: "Multi-tenant Architecture",
-      description: "You can simply share passwords instead of buying new seats",
-      icon: <IconRouteAltLeft />,
-    },
-    {
-      title: "24/7 Customer Support",
+      title: "Mobile App (coming soon)",
       description:
-        "We are available a 100% of the time. Atleast our AI Agents are.",
-      icon: <IconHelp />,
-    },
-    {
-      title: "Money back guarantee",
-      description:
-        "If you donot like EveryAI, we will convince you to like us.",
-      icon: <IconAdjustmentsBolt />,
-    },
-    {
-      title: "And everything else",
-      description: "I just ran out of copy ideas. Accept my sincere apologies",
-      icon: <IconHeart />,
+        "Access your callbacks on the go with our upcoming mobile application.",
+      icon: <IconDeviceMobile />,
     },
   ];
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 relative z-10 py-10 max-w-7xl mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative z-10 py-10 max-w-7xl mx-auto">
       {features.map((feature, index) => (
         <Feature key={feature.title} {...feature} index={index} />
       ))}
