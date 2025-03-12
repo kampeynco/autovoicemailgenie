@@ -1,8 +1,5 @@
-
 import { cn } from "@/lib/utils";
 import {
-  IconAdjustmentsBolt,
-  IconBrandAirtable,
   IconChartBar,
   IconDeviceMobile,
   IconMicrophone,
