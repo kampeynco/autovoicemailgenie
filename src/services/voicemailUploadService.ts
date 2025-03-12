@@ -24,7 +24,7 @@ export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
                         voicemailFile.type === 'audio/mpeg' ? 'mp3' : 
                         voicemailFile.type === 'audio/wav' ? 'wav' : 'audio');
   
-  // Make sure user ID is included in the file path
+  // Make sure user ID is included in the file path - this is important for RLS policies
   const fileName = `${userId}/voicemail_${Date.now()}.${fileExtension}`;
   console.log("Uploading file:", fileName, "Type:", voicemailFile.type, "Size:", voicemailFile.size);
   

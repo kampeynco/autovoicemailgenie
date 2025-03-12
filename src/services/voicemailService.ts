@@ -22,6 +22,8 @@ export const saveVoicemail = async ({
   if (uploadedFile || recordedBlob) {
     const fileToUpload = uploadedFile || new File([recordedBlob!], "recording.webm", { type: recordedBlob!.type });
     const fileExt = fileToUpload.name.split('.').pop();
+    
+    // Ensure proper file path for RLS policies - must include userId as the first folder segment
     const fileName = `${userId}/${Date.now()}.${fileExt}`;
     
     // Upload the file
