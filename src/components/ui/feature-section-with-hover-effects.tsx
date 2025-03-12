@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import {
   IconAdjustmentsBolt,
@@ -6,7 +7,7 @@ import {
   IconDeviceMobile,
   IconMicrophone,
   IconPhone,
-  IconPlayerRecord,
+  IconChartBarOff,
   IconSend,
 } from "@tabler/icons-react";
 
@@ -38,7 +39,7 @@ export function FeaturesSectionWithHoverEffects() {
       title: "Call Tracking and Monitoring",
       description:
         "Comprehensive tracking and monitoring of all callback activities in real-time.",
-      icon: <IconPlayerRecord />,
+      icon: <IconChartBarOff />,
     },
     {
       title: "Mobile App (coming soon)",
