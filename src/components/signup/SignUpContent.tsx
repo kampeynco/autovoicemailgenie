@@ -15,6 +15,7 @@ const SignUpContent = () => {
   const { signUp } = useAuth();
   const { data, currentStep, resetData } = useSignUp();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [voicemailError, setVoicemailError] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -28,6 +29,8 @@ const SignUpContent = () => {
   // Handle the final step (complete sign up)
   const handleComplete = async () => {
     setIsSubmitting(true);
+    setVoicemailError(null);
+    
     try {
       // 1. Register user first
       const { user, error } = await signUp(data.email, data.password);
@@ -48,32 +51,41 @@ const SignUpContent = () => {
       const { error: committeeError } = await supabase.from("committees").insert(committeeData);
       if (committeeError) throw committeeError;
 
-      // 3. Upload the voicemail file only after user is created
+      // 3. Upload the voicemail file
+      let voicemailUploaded = false;
       if (data.voicemailFile) {
         try {
-          await uploadVoicemail(user.id, data.voicemailFile);
+          const voicemailPath = await uploadVoicemail(user.id, data.voicemailFile);
+          voicemailUploaded = true;
+          console.log("Voicemail uploaded successfully:", voicemailPath);
         } catch (storageError: any) {
-          console.error("Error with storage or voicemail:", storageError);
-          // Continue with sign up even if voicemail upload fails
+          console.error("Error with voicemail upload:", storageError);
+          setVoicemailError(storageError.message || "Failed to upload voicemail");
+          
+          // Don't throw the error here - we want to show a specific error for voicemail
+          // but still allow them to complete signup if everything else succeeded
           toast({
-            title: "Voicemail Warning",
-            description: "Your account was created, but there was an issue with the voicemail: " + storageError.message,
+            title: "Voicemail Upload Failed",
+            description: "Your account was created, but there was an issue with the voicemail. You can add a voicemail later in settings.",
             variant: "destructive"
           });
         }
       }
 
-      // Reset sign up data
-      resetData();
+      // Only reset data and redirect if there was no voicemail error or if the voicemail was uploaded successfully
+      if (voicemailUploaded || !data.voicemailFile) {
+        // Reset sign up data
+        resetData();
 
-      // Show success message
-      toast({
-        title: "Success!",
-        description: "Your account has been created successfully. You can now sign in."
-      });
+        // Show success message
+        toast({
+          title: "Success!",
+          description: "Your account has been created successfully. You can now sign in."
+        });
 
-      // Redirect to sign in
-      navigate("/auth/signin");
+        // Redirect to sign in
+        navigate("/auth/signin");
+      }
     } catch (error: any) {
       console.error("Sign up process error:", error);
       toast({
@@ -108,7 +120,13 @@ const SignUpContent = () => {
           <div className="bg-white rounded-lg">
             {currentStep === 1 && <AccountStep />}
             {currentStep === 2 && <CommitteeStep />}
-            {currentStep === 3 && <VoicemailStep onComplete={handleComplete} isSubmitting={isSubmitting} />}
+            {currentStep === 3 && (
+              <VoicemailStep 
+                onComplete={handleComplete} 
+                isSubmitting={isSubmitting}
+                error={voicemailError}
+              />
+            )}
           </div>
           
           {/* Mobile-only "Sign in" link */}

@@ -1,6 +1,8 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+
+// Maximum retry attempts for file upload
+const MAX_UPLOAD_RETRIES = 3;
 
 export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
   console.log("Starting voicemail upload process");
@@ -10,7 +12,7 @@ export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
   
   if (bucketError) {
     console.error("Error checking buckets:", bucketError);
-    throw new Error("Failed to check storage buckets");
+    throw new Error(`Failed to check storage buckets: ${bucketError.message}`);
   }
   
   const voicemailsBucketExists = buckets?.some(bucket => bucket.name === 'voicemails');
@@ -24,7 +26,7 @@ export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
     
     if (createBucketError) {
       console.error("Error creating bucket:", createBucketError);
-      throw new Error("Failed to create storage bucket");
+      throw new Error(`Failed to create storage bucket: ${createBucketError.message}`);
     }
   }
   
@@ -35,19 +37,48 @@ export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
                         voicemailFile.type === 'audio/wav' ? 'wav' : 'audio');
   
   const fileName = `${userId}/voicemail_${Date.now()}.${fileExtension}`;
-  console.log("Uploading file:", fileName, "Type:", voicemailFile.type);
+  console.log("Uploading file:", fileName, "Type:", voicemailFile.type, "Size:", voicemailFile.size);
   
-  // Upload to Supabase Storage with explicit options
-  const {
-    error: uploadError,
-    data: uploadData
-  } = await supabase.storage.from('voicemails').upload(fileName, voicemailFile, {
-    cacheControl: '3600',
-    upsert: false
-  });
+  // Implement retry logic for uploads
+  let uploadError = null;
+  let uploadData = null;
   
+  for (let attempt = 1; attempt <= MAX_UPLOAD_RETRIES; attempt++) {
+    try {
+      console.log(`Upload attempt ${attempt} of ${MAX_UPLOAD_RETRIES}`);
+      
+      // Upload to Supabase Storage with explicit options
+      const result = await supabase.storage.from('voicemails').upload(fileName, voicemailFile, {
+        cacheControl: '3600',
+        upsert: attempt > 1, // Only use upsert on retry attempts
+      });
+      
+      uploadError = result.error;
+      uploadData = result.data;
+      
+      if (!uploadError) {
+        console.log(`Upload successful on attempt ${attempt}`);
+        break;
+      }
+      
+      console.error(`Upload attempt ${attempt} failed:`, uploadError);
+      
+      // If this was the last attempt, don't delay, just let it fail
+      if (attempt < MAX_UPLOAD_RETRIES) {
+        // Exponential backoff delay between retries (500ms, 1000ms, 2000ms, etc)
+        const delay = 500 * Math.pow(2, attempt - 1);
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    } catch (error) {
+      console.error(`Unexpected error during upload attempt ${attempt}:`, error);
+      uploadError = error;
+    }
+  }
+  
+  // If all attempts failed, throw the error
   if (uploadError) {
-    console.error("Storage upload error:", uploadError);
+    console.error("All upload attempts failed:", uploadError);
     throw uploadError;
   }
   
@@ -63,6 +94,23 @@ export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
   
   console.log("Public URL:", pathData.publicUrl);
 
+  // Verify the file exists in storage
+  try {
+    const { data: fileData, error: fileError } = await supabase.storage
+      .from('voicemails')
+      .download(fileName);
+      
+    if (fileError || !fileData) {
+      console.error("File verification failed:", fileError);
+      throw new Error("Uploaded file could not be verified: " + (fileError?.message || "Unknown error"));
+    }
+    
+    console.log("File verified in storage");
+  } catch (verifyError) {
+    console.error("Error verifying file:", verifyError);
+    // We'll continue even if verification fails, but log it
+  }
+
   // Create voicemail record with the file path
   const { error: voicemailError } = await supabase.from("voicemails").insert({
     user_id: userId,
@@ -73,7 +121,7 @@ export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
   
   if (voicemailError) {
     console.error("Voicemail record error:", voicemailError);
-    throw voicemailError;
+    throw new Error(`Failed to create voicemail record: ${voicemailError.message}`);
   }
   
   console.log("Voicemail record created successfully");
