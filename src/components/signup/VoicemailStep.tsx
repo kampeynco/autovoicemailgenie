@@ -1,8 +1,6 @@
-
 import { useState } from "react";
 import { useSignUp } from "@/contexts/SignUpContext";
 import { useToast } from "@/components/ui/use-toast";
-import { useVoicemailUploader } from "@/hooks/useVoicemailUploader";
 import VoicemailHeader from "./voicemail/VoicemailHeader";
 import VoicemailUploadSection from "./voicemail/VoicemailUploadSection";
 import SubmitButtonSection from "./committees/SubmitButtonSection";
@@ -26,9 +24,8 @@ const VoicemailStep = ({
   const { updateData, prevStep } = useSignUp();
   const { toast } = useToast();
   const [voicemailFile, setVoicemailFile] = useState<File | null>(null);
-  const { isUploading, uploadError, uploadVoicemailFile } = useVoicemailUploader();
   
-  const displayError = error || uploadError;
+  const displayError = error;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,13 +63,13 @@ const VoicemailStep = ({
                   type="button" 
                   variant="outline" 
                   onClick={onSkipVoicemail}
-                  disabled={isSubmitting || isUploading}
+                  disabled={isSubmitting}
                 >
                   Skip for now
                 </Button>
                 <Button 
                   type="submit" 
-                  disabled={isSubmitting || isUploading || !voicemailFile}
+                  disabled={isSubmitting || !voicemailFile}
                 >
                   Try again
                 </Button>
@@ -85,7 +82,7 @@ const VoicemailStep = ({
         
         {!displayError && (
           <SubmitButtonSection 
-            isSubmitting={isSubmitting || isUploading} 
+            isSubmitting={isSubmitting} 
             onBack={prevStep} 
           />
         )}

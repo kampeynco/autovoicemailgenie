@@ -9,7 +9,7 @@ import AccountStep from "./AccountStep";
 import CommitteeStep from "./CommitteeStep";
 import VoicemailStep from "./VoicemailStep";
 import StepsIndicator from "./StepsIndicator";
-import { uploadVoicemail } from "@/services/voicemailUploadService";
+import { saveVoicemail } from "@/services/voicemailService";
 
 const SignUpContent = () => {
   const { signUp } = useAuth();
@@ -55,7 +55,7 @@ const SignUpContent = () => {
     return newUser;
   };
 
-  // Handle uploading the voicemail
+  // Handle uploading the voicemail using the saveVoicemail function
   const handleVoicemailUpload = async (userId: string) => {
     if (!data.voicemailFile) {
       console.log("No voicemail file to upload");
@@ -64,8 +64,17 @@ const SignUpContent = () => {
     
     try {
       console.log("Starting voicemail upload for user:", userId, "File:", data.voicemailFile.name);
-      const filePath = await uploadVoicemail(userId, data.voicemailFile);
-      console.log("Voicemail uploaded successfully:", filePath);
+      
+      // Use the saveVoicemail function that works in the modal
+      await saveVoicemail({
+        userId: userId,
+        name: "Default Voicemail",
+        description: null,
+        uploadedFile: data.voicemailFile,
+        recordedBlob: null,
+      });
+      
+      console.log("Voicemail uploaded successfully");
       toast({
         title: "Voicemail Uploaded",
         description: "Your voicemail greeting has been added to your account.",
