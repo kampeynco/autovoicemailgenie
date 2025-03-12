@@ -3,6 +3,7 @@ import React from "react";
 import { CallWithRecording } from "@/types/twilio";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TabContent from "./TabContent";
+import { List, PhoneIncoming, Voicemail } from "lucide-react";
 
 interface CallbacksTabsProps {
   calls: CallWithRecording[] | undefined;
@@ -17,10 +18,14 @@ const CallbacksTabs: React.FC<CallbacksTabsProps> = ({
   error, 
   onRefetch 
 }) => {
-  // Filter for calls with recordings that haven't been marked as heard
-  // Use optional chaining and fallback for is_heard property since it might be undefined
-  const unheardCalls = calls?.filter(call => 
-    call.recording && call.is_heard !== true
+  // Filter for calls (inbound calls - answered and missed)
+  const callbackCalls = calls?.filter(call => 
+    !call.recording?.transcription // Calls without transcription are regular callbacks
+  ) || [];
+  
+  // Filter for voicemails (calls with transcription)
+  const voicemailCalls = calls?.filter(call => 
+    call.recording?.transcription // Calls with transcription are voicemails
   ) || [];
   
   return (
@@ -28,8 +33,18 @@ const CallbacksTabs: React.FC<CallbacksTabsProps> = ({
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-semibold text-[#073127]">Callbacks</h2>
         <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="unheard">Unheard</TabsTrigger>
+          <TabsTrigger value="all" className="flex items-center gap-1">
+            <List className="h-4 w-4" />
+            <span>All</span>
+          </TabsTrigger>
+          <TabsTrigger value="callbacks" className="flex items-center gap-1">
+            <PhoneIncoming className="h-4 w-4" />
+            <span>Callbacks</span>
+          </TabsTrigger>
+          <TabsTrigger value="voicemails" className="flex items-center gap-1">
+            <Voicemail className="h-4 w-4" />
+            <span>Voicemails</span>
+          </TabsTrigger>
         </TabsList>
       </div>
       
@@ -39,19 +54,30 @@ const CallbacksTabs: React.FC<CallbacksTabsProps> = ({
           isLoading={isLoading}
           error={error}
           onRetry={onRefetch}
-          emptyMessage="No callbacks yet"
-          emptyDescription="When supporters call your campaign number, their callbacks will appear here."
+          emptyMessage="No callbacks or voicemails yet"
+          emptyDescription="When supporters call your campaign number, their callbacks and voicemails will appear here."
         />
       </TabsContent>
       
-      <TabsContent value="unheard">
+      <TabsContent value="callbacks">
         <TabContent
-          calls={unheardCalls}
+          calls={callbackCalls}
           isLoading={isLoading}
           error={error}
           onRetry={onRefetch}
-          emptyMessage="No unheard callbacks"
-          emptyDescription="You've listened to all your callbacks. Great job!"
+          emptyMessage="No callbacks yet"
+          emptyDescription="When supporters call your campaign number, their inbound calls will appear here."
+        />
+      </TabsContent>
+      
+      <TabsContent value="voicemails">
+        <TabContent
+          calls={voicemailCalls}
+          isLoading={isLoading}
+          error={error}
+          onRetry={onRefetch}
+          emptyMessage="No voicemails yet"
+          emptyDescription="When supporters leave voicemail messages, they will appear here."
         />
       </TabsContent>
     </Tabs>
