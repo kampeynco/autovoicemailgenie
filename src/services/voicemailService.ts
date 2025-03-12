@@ -24,26 +24,18 @@ export const saveVoicemail = async ({
     const fileExt = fileToUpload.name.split('.').pop();
     const fileName = `${userId}/${Date.now()}.${fileExt}`;
     
-    // Make sure the voicemails bucket exists
-    const { data: buckets } = await supabase.storage.listBuckets();
-    const voicemailsBucketExists = buckets?.some(bucket => bucket.name === 'voicemails');
-    
-    if (!voicemailsBucketExists) {
-      // Create the bucket if it doesn't exist
-      await supabase.storage.createBucket('voicemails', {
-        public: true,
-      });
-    }
-    
     // Upload the file
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError, data } = await supabase.storage
       .from('voicemails')
       .upload(fileName, fileToUpload, {
         cacheControl: '3600',
         upsert: true
       });
       
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error("Error uploading voicemail file:", uploadError);
+      throw uploadError;
+    }
     
     // Get the public URL
     const { data: publicUrlData } = supabase.storage
@@ -70,7 +62,10 @@ export const saveVoicemail = async ({
       .update(updateData)
       .eq('id', voicemailId);
       
-    if (error) throw error;
+    if (error) {
+      console.error("Error updating voicemail record:", error);
+      throw error;
+    }
   } else {
     // Create new voicemail
     if (!filePath) {
@@ -87,7 +82,10 @@ export const saveVoicemail = async ({
         is_default: false
       });
       
-    if (error) throw error;
+    if (error) {
+      console.error("Error creating voicemail record:", error);
+      throw error;
+    }
   }
 
   return true;
