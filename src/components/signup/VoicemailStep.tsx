@@ -8,6 +8,7 @@ import VoicemailUploadSection from "./voicemail/VoicemailUploadSection";
 import SubmitButtonSection from "./committees/SubmitButtonSection";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface VoicemailStepProps {
   onComplete: () => Promise<void>;
@@ -19,7 +20,7 @@ const VoicemailStep = ({ onComplete, isSubmitting, error }: VoicemailStepProps) 
   const { updateData, prevStep } = useSignUp();
   const { toast } = useToast();
   const [voicemailFile, setVoicemailFile] = useState<File | null>(null);
-  const { isUploading, setIsUploading, ensureVoicemailsBucketExists } = useVoicemailUploader();
+  const { isUploading, setIsUploading } = useVoicemailUploader();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +36,6 @@ const VoicemailStep = ({ onComplete, isSubmitting, error }: VoicemailStepProps) 
     
     try {
       setIsUploading(true);
-      await ensureVoicemailsBucketExists();
       updateData({ voicemailFile });
       await onComplete();
     } catch (error: any) {
@@ -50,6 +50,11 @@ const VoicemailStep = ({ onComplete, isSubmitting, error }: VoicemailStepProps) 
     }
   };
 
+  const handleSkipVoicemail = async () => {
+    updateData({ voicemailFile: null });
+    await onComplete();
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       <div className="space-y-6">
@@ -61,16 +66,35 @@ const VoicemailStep = ({ onComplete, isSubmitting, error }: VoicemailStepProps) 
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>
               {error}
-              <p className="mt-2">Please try again or contact support if the issue persists.</p>
+              <p className="mt-2">Please try again or you can skip adding a voicemail for now.</p>
+              <div className="mt-4 flex space-x-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleSkipVoicemail}
+                  disabled={isSubmitting || isUploading}
+                >
+                  Skip for now
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting || isUploading || !voicemailFile}
+                >
+                  Try again
+                </Button>
+              </div>
             </AlertDescription>
           </Alert>
         )}
         
         <VoicemailUploadSection onVoicemailUpdate={setVoicemailFile} />
-        <SubmitButtonSection 
-          isSubmitting={isSubmitting || isUploading} 
-          onBack={prevStep} 
-        />
+        
+        {!error && (
+          <SubmitButtonSection 
+            isSubmitting={isSubmitting || isUploading} 
+            onBack={prevStep} 
+          />
+        )}
       </div>
     </form>
   );

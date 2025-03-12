@@ -62,39 +62,40 @@ const SignUpContent = () => {
           console.error("Error with voicemail upload:", storageError);
           setVoicemailError(storageError.message || "Failed to upload voicemail");
           
-          // Don't throw the error here - we want to show a specific error for voicemail
-          // but still allow them to complete signup if everything else succeeded
+          // We don't throw the error here to prevent complete signup failure
+          // But we also don't reset data or redirect until the voicemail is uploaded or explicitly skipped
+          setIsSubmitting(false);
           toast({
             title: "Voicemail Upload Failed",
-            description: "Your account was created, but there was an issue with the voicemail. You can add a voicemail later in settings.",
+            description: "There was an issue with the voicemail upload. Please try again or choose to skip.",
             variant: "destructive"
           });
+          
+          // Early return - don't reset data or redirect
+          return;
         }
       }
 
       // Only reset data and redirect if there was no voicemail error or if the voicemail was uploaded successfully
-      if (voicemailUploaded || !data.voicemailFile) {
-        // Reset sign up data
-        resetData();
+      // Reset sign up data
+      resetData();
 
-        // Show success message
-        toast({
-          title: "Success!",
-          description: "Your account has been created successfully. You can now sign in."
-        });
+      // Show success message
+      toast({
+        title: "Success!",
+        description: "Your account has been created successfully. You can now sign in."
+      });
 
-        // Redirect to sign in
-        navigate("/auth/signin");
-      }
+      // Redirect to sign in
+      navigate("/auth/signin");
     } catch (error: any) {
       console.error("Sign up process error:", error);
+      setIsSubmitting(false);
       toast({
         title: "Sign Up Failed",
         description: error.message || "An error occurred during the sign up process",
         variant: "destructive"
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

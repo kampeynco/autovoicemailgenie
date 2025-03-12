@@ -7,48 +7,12 @@ export const useVoicemailUploader = () => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
 
+  // We no longer need this function for signup since bucket creation requires admin permissions
+  // The voicemailUploadService.ts already handles checking if the bucket exists
   const ensureVoicemailsBucketExists = async () => {
-    try {
-      const { data: buckets, error: listError } = await supabase.storage.listBuckets();
-      
-      if (listError) {
-        console.error("Error checking buckets:", listError);
-        toast({
-          title: "Storage Error",
-          description: "Could not check storage buckets. Please try again.",
-          variant: "destructive"
-        });
-        return false;
-      }
-
-      const bucketExists = buckets?.some(bucket => bucket.name === 'voicemails');
-      
-      if (!bucketExists) {
-        const { error: createError } = await supabase.storage.createBucket('voicemails', {
-          public: true,
-        });
-        
-        if (createError) {
-          console.error("Error creating voicemails bucket:", createError);
-          toast({
-            title: "Storage Error",
-            description: "Could not create storage bucket. Please try again.",
-            variant: "destructive"
-          });
-          return false;
-        }
-      }
-      
-      return true;
-    } catch (error) {
-      console.error("Bucket check/creation error:", error);
-      toast({
-        title: "Storage Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
-      });
-      return false;
-    }
+    // Return true to indicate success without attempting bucket creation
+    // The bucket creation should be handled on the server side or by an admin
+    return true;
   };
 
   return {

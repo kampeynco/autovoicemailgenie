@@ -18,16 +18,8 @@ export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
   const voicemailsBucketExists = buckets?.some(bucket => bucket.name === 'voicemails');
   
   if (!voicemailsBucketExists) {
-    console.log("Creating voicemails bucket");
-    // Create the bucket if it doesn't exist
-    const { error: createBucketError } = await supabase.storage.createBucket('voicemails', {
-      public: true,
-    });
-    
-    if (createBucketError) {
-      console.error("Error creating bucket:", createBucketError);
-      throw new Error(`Failed to create storage bucket: ${createBucketError.message}`);
-    }
+    console.log("Voicemails bucket doesn't exist");
+    throw new Error("The voicemails storage bucket doesn't exist. Please contact support.");
   }
   
   // Generate a unique filename with proper extension
@@ -79,7 +71,7 @@ export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
   // If all attempts failed, throw the error
   if (uploadError) {
     console.error("All upload attempts failed:", uploadError);
-    throw uploadError;
+    throw new Error(`Failed to upload voicemail after ${MAX_UPLOAD_RETRIES} attempts. Please try again later.`);
   }
   
   console.log("File uploaded successfully");
