@@ -40,10 +40,11 @@ export function FeaturesSectionWithHoverEffects() {
       icon: <IconChartScatter />,
     },
     {
-      title: "Mobile App (coming soon)",
+      title: "Mobile App",
       description:
         "Access your callbacks on the go with our upcoming mobile application.",
       icon: <IconDeviceMobile />,
+      badge: "coming soon"
     },
   ];
   return (
@@ -60,11 +61,13 @@ const Feature = ({
   description,
   icon,
   index,
+  badge,
 }: {
   title: string;
   description: string;
   icon: React.ReactNode;
   index: number;
+  badge?: string;
 }) => {
   return (
     <div
@@ -83,11 +86,16 @@ const Feature = ({
       <div className="mb-4 relative z-10 px-10 text-neutral-600 dark:text-neutral-400">
         {icon}
       </div>
-      <div className="text-lg font-bold mb-2 relative z-10 px-10">
+      <div className="text-lg font-bold mb-2 relative z-10 px-10 flex items-center">
         <div className="absolute left-0 inset-y-0 h-6 group-hover/feature:h-8 w-1 rounded-tr-full rounded-br-full bg-neutral-300 dark:bg-neutral-700 group-hover/feature:bg-blue-500 transition-all duration-200 origin-center" />
         <span className="group-hover/feature:translate-x-2 transition duration-200 inline-block text-neutral-800 dark:text-neutral-100">
           {title}
         </span>
+        {badge && (
+          <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-red-600 text-white rounded-full">
+            {badge}
+          </span>
+        )}
       </div>
       <p className="text-sm text-neutral-600 dark:text-neutral-300 max-w-xs relative z-10 px-10">
         {description}
