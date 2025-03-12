@@ -1,7 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Phone, Calendar, BarChart3, Zap, ArrowRight, CheckCircle } from "lucide-react";
+import { FeaturesSectionWithHoverEffects } from "@/components/ui/feature-section-with-hover-effects";
 
 const Index = () => {
   return <div className="min-h-screen bg-white">
@@ -51,35 +51,7 @@ const Index = () => {
             <h2 className="text-3xl font-semibold text-center text-[#073127] mb-12">
               Features designed for political fundraising campaigns
             </h2>
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-              {[{
-              icon: Phone,
-              title: "Automated Drops",
-              description: "Set up once, deliver daily voicemails to potential donors automatically."
-            }, {
-              icon: Calendar,
-              title: "Smart Scheduling",
-              description: "Choose optimal times for delivery based on timezone and donor demographics."
-            }, {
-              icon: BarChart3,
-              title: "Detailed Analytics",
-              description: "Track delivery rates, callbacks, and donation conversion metrics."
-            }, {
-              icon: Zap,
-              title: "High Deliverability",
-              description: "Industry-leading delivery rates with DropCowboy integration."
-            }].map(feature => <div key={feature.title} className="relative p-6 bg-white rounded-lg shadow-sm hover-scale">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-[#004838] mb-4">
-                    <feature.icon className="w-6 h-6 text-[#E2FB6C]" />
-                  </div>
-                  <h3 className="text-xl font-medium text-[#073127]">
-                    {feature.title}
-                  </h3>
-                  <p className="mt-2 text-[#333F3C]">
-                    {feature.description}
-                  </p>
-                </div>)}
-            </div>
+            <FeaturesSectionWithHoverEffects />
           </div>
         </div>
 
