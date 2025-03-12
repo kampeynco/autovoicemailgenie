@@ -7,9 +7,14 @@ import OrganizationForm from "./committees/OrganizationForm";
 import SubmitButtonSection from "./committees/SubmitButtonSection";
 import { useCommitteeValidation } from "./committees/CommitteeValidation";
 
-const CommitteeStep = () => {
+interface CommitteeStepProps {
+  onComplete: () => Promise<boolean>;
+  isSubmitting: boolean;
+}
+
+const CommitteeStep = ({ onComplete, isSubmitting }: CommitteeStepProps) => {
   const { data, updateData, nextStep, prevStep } = useSignUp();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [localSubmitting, setLocalSubmitting] = useState(false);
   const { validateCommitteeData } = useCommitteeValidation();
 
   // Debugging: log current committee type on mount and when it changes
@@ -17,22 +22,25 @@ const CommitteeStep = () => {
     console.log("Current committee type:", data.committeeType);
   }, [data.committeeType]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setLocalSubmitting(true);
     
     // Validation
     if (!validateCommitteeData(data)) {
-      setIsSubmitting(false);
+      setLocalSubmitting(false);
       return;
     }
 
-    // Simulate a slight delay for better UX
-    setTimeout(() => {
-      setIsSubmitting(false);
-      // Move to next step
+    // Create user account and committee
+    const success = await onComplete();
+    
+    if (success) {
+      // Move to next step only if account creation was successful
       nextStep();
-    }, 500);
+    }
+    
+    setLocalSubmitting(false);
   };
 
   return (
@@ -61,7 +69,7 @@ const CommitteeStep = () => {
         )}
         
         <SubmitButtonSection 
-          isSubmitting={isSubmitting} 
+          isSubmitting={isSubmitting || localSubmitting} 
           onBack={prevStep}
         />
       </div>

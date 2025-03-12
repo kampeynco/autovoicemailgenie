@@ -13,10 +13,9 @@ import { saveVoicemail } from "@/services/voicemailService";
 
 const SignUpContent = () => {
   const { signUp } = useAuth();
-  const { data, currentStep, resetData } = useSignUp();
+  const { data, currentStep, resetData, updateData } = useSignUp();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [voicemailError, setVoicemailError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -27,47 +26,64 @@ const SignUpContent = () => {
     { id: 3, name: "Voicemail" }
   ];
 
-  // Create user account and committee
+  // Create user account and committee after step 2
   const createUserAndCommittee = async () => {
-    // 1. Register user first
-    const { user: newUser, error } = await signUp(data.email, data.password);
-    if (error) throw error;
-    if (!newUser) throw new Error("Failed to create user account");
-    
-    setUser(newUser);
-    console.log("User created successfully:", newUser.id);
+    setIsSubmitting(true);
+    try {
+      // 1. Register user first
+      const { user: newUser, error } = await signUp(data.email, data.password);
+      if (error) throw error;
+      if (!newUser) throw new Error("Failed to create user account");
+      
+      console.log("User created successfully:", newUser.id);
 
-    // 2. Create committee record
-    const committeeData = {
-      user_id: newUser.id,
-      type: data.committeeType,
-      organization_name: data.committeeType === "organization" ? data.organizationName : null,
-      candidate_first_name: data.committeeType === "candidate" ? data.candidateFirstName : null,
-      candidate_middle_initial: data.committeeType === "candidate" ? data.candidateMiddleInitial : null,
-      candidate_last_name: data.committeeType === "candidate" ? data.candidateLastName : null,
-      candidate_suffix: data.committeeType === "candidate" ? data.candidateSuffix : null
-    };
-    
-    const { error: committeeError } = await supabase.from("committees").insert(committeeData);
-    if (committeeError) throw committeeError;
-    
-    console.log("Committee created successfully for user:", newUser.id);
-    return newUser;
+      // 2. Create committee record
+      const committeeData = {
+        user_id: newUser.id,
+        type: data.committeeType,
+        organization_name: data.committeeType === "organization" ? data.organizationName : null,
+        candidate_first_name: data.committeeType === "candidate" ? data.candidateFirstName : null,
+        candidate_middle_initial: data.committeeType === "candidate" ? data.candidateMiddleInitial : null,
+        candidate_last_name: data.committeeType === "candidate" ? data.candidateLastName : null,
+        candidate_suffix: data.committeeType === "candidate" ? data.candidateSuffix : null
+      };
+      
+      const { error: committeeError } = await supabase.from("committees").insert(committeeData);
+      if (committeeError) throw committeeError;
+      
+      console.log("Committee created successfully for user:", newUser.id);
+      
+      // Store user ID in context for voicemail step
+      updateData({ userId: newUser.id });
+      
+      // Move to voicemail step
+      setIsSubmitting(false);
+      return newUser.id;
+    } catch (error: any) {
+      console.error("Error creating user and committee:", error);
+      setIsSubmitting(false);
+      toast({
+        title: "Sign Up Error",
+        description: error.message || "Failed to create your account. Please try again.",
+        variant: "destructive"
+      });
+      return null;
+    }
   };
 
   // Handle uploading the voicemail using the saveVoicemail function
-  const handleVoicemailUpload = async (userId: string) => {
-    if (!data.voicemailFile) {
-      console.log("No voicemail file to upload");
+  const handleVoicemailUpload = async () => {
+    if (!data.voicemailFile || !data.userId) {
+      console.log("No voicemail file to upload or missing user ID");
       return true; // Not an error if no file
     }
     
     try {
-      console.log("Starting voicemail upload for user:", userId, "File:", data.voicemailFile.name);
+      console.log("Starting voicemail upload for user:", data.userId, "File:", data.voicemailFile.name);
       
-      // Use the saveVoicemail function that works in the modal
+      // Use the saveVoicemail function
       await saveVoicemail({
-        userId: userId,
+        userId: data.userId,
         name: "Default Voicemail",
         description: null,
         uploadedFile: data.voicemailFile,
@@ -107,27 +123,28 @@ const SignUpContent = () => {
     navigate("/auth/signin");
   };
 
-  // Handle the final step (complete sign up)
-  const handleComplete = async () => {
+  // Handle committee step completion
+  const handleCommitteeStepComplete = async () => {
+    const userId = await createUserAndCommittee();
+    return !!userId; // Return true if account was created successfully
+  };
+
+  // Handle the final step (complete sign up with voicemail)
+  const handleVoicemailStepComplete = async () => {
     setIsSubmitting(true);
     setVoicemailError(null);
     
     try {
-      // First create the user account and committee
-      const newUser = await createUserAndCommittee();
+      // Upload the voicemail
+      const voicemailUploaded = await handleVoicemailUpload();
       
-      // Then try to upload the voicemail
-      if (data.voicemailFile) {
-        const voicemailUploaded = await handleVoicemailUpload(newUser.id);
-        
-        if (!voicemailUploaded) {
-          // If voicemail upload failed, we'll stay on the current step to allow retry
-          setIsSubmitting(false);
-          return;
-        }
+      if (!voicemailUploaded) {
+        // If voicemail upload failed, we'll stay on the current step to allow retry
+        setIsSubmitting(false);
+        return;
       }
       
-      // If everything succeeds or we didn't need a voicemail, finalize the signup
+      // If everything succeeds, finalize the signup
       finalizeSignup();
     } catch (error: any) {
       console.error("Sign up process error:", error);
@@ -145,16 +162,8 @@ const SignUpContent = () => {
     setIsSubmitting(true);
     
     try {
-      // If we already created a user in a previous attempt
-      if (user) {
-        console.log("Using existing user account to finalize signup (skipping voicemail)");
-        finalizeSignup();
-      } else {
-        // Create user and committee, then finalize
-        console.log("Creating user account (skipping voicemail)");
-        await createUserAndCommittee();
-        finalizeSignup();
-      }
+      // Just finalize the signup without uploading a voicemail
+      finalizeSignup();
     } catch (error: any) {
       console.error("Error when skipping voicemail:", error);
       setIsSubmitting(false);
@@ -187,10 +196,10 @@ const SignUpContent = () => {
           
           <div className="bg-white rounded-lg">
             {currentStep === 1 && <AccountStep />}
-            {currentStep === 2 && <CommitteeStep />}
+            {currentStep === 2 && <CommitteeStep onComplete={handleCommitteeStepComplete} isSubmitting={isSubmitting} />}
             {currentStep === 3 && (
               <VoicemailStep 
-                onComplete={handleComplete} 
+                onComplete={handleVoicemailStepComplete} 
                 isSubmitting={isSubmitting}
                 error={voicemailError}
                 onSkipVoicemail={handleSkipVoicemail}

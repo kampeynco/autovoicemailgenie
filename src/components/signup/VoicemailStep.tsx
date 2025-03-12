@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useSignUp } from "@/contexts/SignUpContext";
 import { useToast } from "@/components/ui/use-toast";
@@ -21,14 +22,26 @@ const VoicemailStep = ({
   error, 
   onSkipVoicemail 
 }: VoicemailStepProps) => {
-  const { updateData, prevStep } = useSignUp();
+  const { updateData, prevStep, data } = useSignUp();
   const { toast } = useToast();
   const [voicemailFile, setVoicemailFile] = useState<File | null>(null);
   
   const displayError = error;
 
+  // Show an error if somehow we reached this step without a user ID
+  const userIdMissing = !data.userId;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (userIdMissing) {
+      toast({
+        title: "Account Error",
+        description: "There was a problem with your account. Please start over.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     if (!voicemailFile) {
       toast({
@@ -45,6 +58,26 @@ const VoicemailStep = ({
     // Proceed to completion
     await onComplete();
   };
+
+  if (userIdMissing) {
+    return (
+      <Alert variant="destructive" className="mb-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Account Creation Error</AlertTitle>
+        <AlertDescription>
+          There was a problem with your account creation. Please try again from the beginning.
+          <div className="mt-4">
+            <Button 
+              type="button" 
+              onClick={() => window.location.reload()}
+            >
+              Start Over
+            </Button>
+          </div>
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit}>
