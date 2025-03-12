@@ -1,9 +1,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { useSignUp } from "@/contexts/SignUpContext";
 
 export const useVoicemailRecorder = () => {
   const { toast } = useToast();
+  const { updateData: updateSignUpData } = useSignUp();
   const [isRecording, setIsRecording] = useState(false);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -95,6 +97,11 @@ export const useVoicemailRecorder = () => {
     setRecordingProgress(0);
   };
 
+  // Function to update the SignUp context with recorded blob
+  const updateData = (data: { recordedBlob: Blob | null }) => {
+    updateSignUpData(data);
+  };
+
   return {
     isRecording,
     recordedBlob,
@@ -104,5 +111,6 @@ export const useVoicemailRecorder = () => {
     startRecording,
     stopRecording,
     clearRecording,
+    updateData,
   };
 };
