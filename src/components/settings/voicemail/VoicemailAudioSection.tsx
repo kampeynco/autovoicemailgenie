@@ -8,6 +8,9 @@ import { useToast } from "@/components/ui/use-toast";
 interface VoicemailAudioSectionProps {
   isRecording: boolean;
   recordedBlob: Blob | null;
+  recordingTime?: number;
+  recordingProgress?: number;
+  maxRecordingTime?: number;
   uploadedFile: File | null;
   startRecording: () => void;
   stopRecording: () => void;
@@ -19,6 +22,9 @@ interface VoicemailAudioSectionProps {
 const VoicemailAudioSection = ({ 
   isRecording, 
   recordedBlob, 
+  recordingTime = 0,
+  recordingProgress = 0,
+  maxRecordingTime = 30,
   uploadedFile, 
   startRecording, 
   stopRecording, 
@@ -31,13 +37,19 @@ const VoicemailAudioSection = ({
       {isRecording || recordedBlob ? (
         <RecordingUI 
           isRecording={isRecording} 
+          recordingTime={recordingTime}
+          recordingProgress={recordingProgress}
+          maxRecordingTime={maxRecordingTime}
           onStartRecording={startRecording} 
           onStopRecording={stopRecording} 
         />
       ) : uploadedFile ? null : (
         <div className="space-y-4">
           <RecordingUI 
-            isRecording={isRecording} 
+            isRecording={isRecording}
+            recordingTime={recordingTime}
+            recordingProgress={recordingProgress}
+            maxRecordingTime={maxRecordingTime}
             onStartRecording={startRecording} 
             onStopRecording={stopRecording} 
           />

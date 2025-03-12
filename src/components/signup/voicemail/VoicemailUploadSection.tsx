@@ -16,6 +16,9 @@ const VoicemailUploadSection = ({ onVoicemailUpdate }: VoicemailUploadSectionPro
   const {
     isRecording,
     recordedBlob,
+    recordingTime,
+    recordingProgress,
+    MAX_RECORDING_TIME,
     startRecording,
     stopRecording,
     clearRecording
@@ -54,7 +57,10 @@ const VoicemailUploadSection = ({ onVoicemailUpdate }: VoicemailUploadSectionPro
     <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center">
       {isRecording || recordedBlob ? (
         <RecordingUI 
-          isRecording={isRecording} 
+          isRecording={isRecording}
+          recordingTime={recordingTime}
+          recordingProgress={recordingProgress}
+          maxRecordingTime={MAX_RECORDING_TIME}
           onStartRecording={startRecording} 
           onStopRecording={() => {
             stopRecording();
@@ -64,7 +70,10 @@ const VoicemailUploadSection = ({ onVoicemailUpdate }: VoicemailUploadSectionPro
       ) : uploadedFile ? null : (
         <div className="space-y-4">
           <RecordingUI 
-            isRecording={isRecording} 
+            isRecording={isRecording}
+            recordingTime={recordingTime}
+            recordingProgress={recordingProgress}
+            maxRecordingTime={MAX_RECORDING_TIME}
             onStartRecording={startRecording} 
             onStopRecording={() => {
               stopRecording();

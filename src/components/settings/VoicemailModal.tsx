@@ -30,6 +30,9 @@ const VoicemailModal = ({ isOpen, onClose, onVoicemailSaved, editVoicemail }: Vo
   const {
     isRecording,
     recordedBlob,
+    recordingTime,
+    recordingProgress,
+    MAX_RECORDING_TIME,
     startRecording,
     stopRecording,
     clearRecording
@@ -129,6 +132,9 @@ const VoicemailModal = ({ isOpen, onClose, onVoicemailSaved, editVoicemail }: Vo
           <VoicemailAudioSection 
             isRecording={isRecording}
             recordedBlob={recordedBlob}
+            recordingTime={recordingTime}
+            recordingProgress={recordingProgress}
+            maxRecordingTime={MAX_RECORDING_TIME}
             uploadedFile={uploadedFile}
             startRecording={startRecording}
             stopRecording={stopRecording}
