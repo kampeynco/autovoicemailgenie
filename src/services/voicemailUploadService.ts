@@ -28,13 +28,23 @@ export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
   const fileName = `${userId}/voicemail_${Date.now()}.${fileExtension}`;
   console.log("Uploading file:", fileName, "Type:", voicemailFile.type, "Size:", voicemailFile.size);
   
-  // Check if voicemails bucket exists
+  // Check if voicemails bucket exists, if not create it
   const { data: buckets } = await supabase.storage.listBuckets();
   const voicemailsBucketExists = buckets?.some(bucket => bucket.name === 'voicemails');
   
   if (!voicemailsBucketExists) {
-    console.error("Voicemails bucket does not exist");
-    throw new Error("Storage is not properly configured. Please contact support.");
+    console.log("Voicemails bucket does not exist, creating it now");
+    const { error: createBucketError } = await supabase.storage.createBucket('voicemails', {
+      public: true, // Make the bucket public so files can be accessed
+      fileSizeLimit: 50000000 // 50MB limit for audio files
+    });
+    
+    if (createBucketError) {
+      console.error("Failed to create voicemails bucket:", createBucketError);
+      throw new Error(`Storage configuration failed: ${createBucketError.message}`);
+    }
+    
+    console.log("Voicemails bucket created successfully");
   }
   
   // Implement retry logic for uploads
