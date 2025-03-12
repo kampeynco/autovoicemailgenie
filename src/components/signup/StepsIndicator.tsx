@@ -1,5 +1,6 @@
 
 import React from "react";
+import { useSignUp } from "@/contexts/SignUpContext";
 
 interface Step {
   id: number;
@@ -8,10 +9,11 @@ interface Step {
 
 interface StepsIndicatorProps {
   steps: Step[];
-  currentStep: number;
 }
 
-const StepsIndicator = ({ steps, currentStep }: StepsIndicatorProps) => {
+const StepsIndicator = ({ steps }: StepsIndicatorProps) => {
+  const { currentStep } = useSignUp();
+  
   return (
     <div className="flex justify-between items-center mb-8">
       {steps.map((step) => (
