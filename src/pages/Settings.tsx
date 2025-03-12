@@ -1,11 +1,12 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import ProfileTab from "@/components/settings/ProfileTab";
 import CommitteeTab from "@/components/settings/CommitteeTab";
 import VoicemailTab from "@/components/settings/VoicemailTab";
 import BillingTab from "@/components/settings/BillingTab";
+import CallbackNumberTab from "@/components/settings/CallbackNumberTab";
 
 const Settings = () => {
   return (
@@ -30,6 +31,12 @@ const Settings = () => {
                   Committee
                 </TabsTrigger>
                 <TabsTrigger 
+                  value="callback-number" 
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-[#004838] rounded-none px-4 py-2 data-[state=active]:shadow-none"
+                >
+                  Callback Number
+                </TabsTrigger>
+                <TabsTrigger 
                   value="voicemail" 
                   className="data-[state=active]:border-b-2 data-[state=active]:border-[#004838] rounded-none px-4 py-2 data-[state=active]:shadow-none"
                 >
@@ -49,6 +56,10 @@ const Settings = () => {
               
               <TabsContent value="committee" className="pt-4">
                 <CommitteeTab />
+              </TabsContent>
+              
+              <TabsContent value="callback-number" className="pt-4">
+                <CallbackNumberTab />
               </TabsContent>
               
               <TabsContent value="voicemail" className="pt-4">
