@@ -16,19 +16,19 @@ interface Plan {
 const plans: Plan[] = [
   {
     name: "Starter",
-    priceId: "price_starter",
+    priceId: "price_1R1snxRKZZ9Z1atyiTfypjpO",
     price: 249,
     drops: 3000,
   },
   {
     name: "Grow",
-    priceId: "price_grow",
+    priceId: "price_1R1soKRKZZ9Z1atyzuT8mW92",
     price: 499,
     drops: 6000,
   },
   {
     name: "Scale",
-    priceId: "price_scale",
+    priceId: "price_1R1soXRKZZ9Z1atyGrCeSN3v",
     price: 995,
     drops: 12000,
   },
