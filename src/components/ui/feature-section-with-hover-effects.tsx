@@ -44,7 +44,7 @@ export function FeaturesSectionWithHoverEffects() {
       description:
         "Access your callbacks on the go with our upcoming mobile application.",
       icon: <IconDeviceMobile />,
-      badge: "coming soon"
+      badge: "Coming Soon"
     },
   ];
   return (
