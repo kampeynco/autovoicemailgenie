@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils";
 import {
-  IconChartBar,
+  IconChatterScatter,
   IconDeviceMobile,
   IconMicrophone,
-  IconPhone,
+  IconHash,
   IconTrendingUp,
-  IconCalendarEvent,
+  IconAutomation,
 } from "@tabler/icons-react";
 
 export function FeaturesSectionWithHoverEffects() {
@@ -14,7 +14,7 @@ export function FeaturesSectionWithHoverEffects() {
       title:"Set-and-forget\" system",
       description:
         "Schedule recurring voicemail campaigns for political fundraising with minimal effort.",
-      icon: <IconCalendarEvent />,
+      icon: <IconAutomation />,
     },
     {
       title: "Higher response rates",
@@ -25,7 +25,7 @@ export function FeaturesSectionWithHoverEffects() {
     {
       title: "Dedicated phone number",
       description: "Every account includes a dedicated phone number and voice mailbox for callbacks.",
-      icon: <IconPhone />,
+      icon: <IconHash />,
     },
     {
       title: "Unlimited voicemail recordings",
@@ -36,7 +36,7 @@ export function FeaturesSectionWithHoverEffects() {
       title: "Call Tracking and Monitoring",
       description:
         "Comprehensive tracking and monitoring of all callback activities in real-time.",
-      icon: <IconChartBar />,
+      icon: <IconChatterScatter />,
     },
     {
       title: "Mobile App (coming soon)",
