@@ -91,7 +91,9 @@ const SignUpContent = () => {
       <div className="w-full max-w-md space-y-6">
         {/* Mobile-only logo and header */}
         <div className="block md:hidden text-center">
-          <h1 className="text-2xl font-semibold text-[#004838] mb-6">Callback Engine</h1>
+          <Link to="/" className="inline-block hover:opacity-90 transition-opacity">
+            <h1 className="text-2xl font-semibold text-[#004838] mb-6">Callback Engine</h1>
+          </Link>
         </div>
         
         <div>

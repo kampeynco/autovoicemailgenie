@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Eye, EyeOff } from "lucide-react";
+
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,6 +19,7 @@ const SignIn = () => {
     toast
   } = useToast();
   const navigate = useNavigate();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
@@ -38,14 +40,18 @@ const SignIn = () => {
       setIsSubmitting(false);
     }
   };
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
   return <div className="flex min-h-screen">
       {/* Left panel */}
       <div className="hidden md:flex md:w-1/2 bg-[#004838] text-white flex-col justify-center px-12">
         <div className="mb-8">
-          <h1 className="font-semibold text-white text-4xl">Callback Engine</h1>
+          <Link to="/" className="hover:opacity-90 transition-opacity">
+            <h1 className="font-semibold text-white text-4xl">Callback Engine</h1>
+          </Link>
         </div>
         <h2 className="text-4xl font-bold mb-4">Welcome back</h2>
         <p className="text-lg mb-12">Sign in to access your account and manage your committee's fundraising efforts with ease.</p>
@@ -64,7 +70,9 @@ const SignIn = () => {
         <div className="w-full max-w-md space-y-8">
           {/* Mobile-only logo and header */}
           <div className="block md:hidden text-center">
-            <h1 className="text-2xl font-semibold text-[#004838] mb-6">Callback Engine</h1>
+            <Link to="/" className="inline-block hover:opacity-90 transition-opacity">
+              <h1 className="text-2xl font-semibold text-[#004838] mb-6">Callback Engine</h1>
+            </Link>
           </div>
           
           <div>
@@ -119,4 +127,5 @@ const SignIn = () => {
       </div>
     </div>;
 };
+
 export default SignIn;
