@@ -13,6 +13,7 @@ export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
                         voicemailFile.type === 'audio/mpeg' ? 'mp3' : 
                         voicemailFile.type === 'audio/wav' ? 'wav' : 'audio');
   
+  // Make sure user ID is included in the file path
   const fileName = `${userId}/voicemail_${Date.now()}.${fileExtension}`;
   console.log("Uploading file:", fileName, "Type:", voicemailFile.type, "Size:", voicemailFile.size);
   
@@ -56,7 +57,7 @@ export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
   // If all attempts failed, throw the error
   if (uploadError) {
     console.error("All upload attempts failed:", uploadError);
-    throw new Error(`Failed to upload voicemail after ${MAX_UPLOAD_RETRIES} attempts. Please try again later.`);
+    throw new Error(`Failed to upload voicemail after ${MAX_UPLOAD_RETRIES} attempts: ${uploadError.message || "Unknown error"}`);
   }
   
   console.log("File uploaded successfully");
@@ -70,23 +71,6 @@ export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
   }
   
   console.log("Public URL:", pathData.publicUrl);
-
-  // Verify the file exists in storage
-  try {
-    const { data: fileData, error: fileError } = await supabase.storage
-      .from('voicemails')
-      .download(fileName);
-      
-    if (fileError || !fileData) {
-      console.error("File verification failed:", fileError);
-      throw new Error("Uploaded file could not be verified: " + (fileError?.message || "Unknown error"));
-    }
-    
-    console.log("File verified in storage");
-  } catch (verifyError) {
-    console.error("Error verifying file:", verifyError);
-    // We'll continue even if verification fails, but log it
-  }
 
   // Create voicemail record with the file path
   const { error: voicemailError } = await supabase.from("voicemails").insert({

@@ -26,8 +26,10 @@ const VoicemailStep = ({
   const { updateData, prevStep } = useSignUp();
   const { toast } = useToast();
   const [voicemailFile, setVoicemailFile] = useState<File | null>(null);
-  const { isUploading, setIsUploading } = useVoicemailUploader();
+  const { isUploading, uploadError, uploadVoicemailFile } = useVoicemailUploader();
   
+  const displayError = error || uploadError;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -40,20 +42,11 @@ const VoicemailStep = ({
       return;
     }
     
-    try {
-      setIsUploading(true);
-      updateData({ voicemailFile });
-      await onComplete();
-    } catch (error: any) {
-      console.error("Form submission error:", error);
-      toast({
-        title: "Sign Up Failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setIsUploading(false);
-    }
+    // Store the file in context for later upload
+    updateData({ voicemailFile });
+    
+    // Proceed to completion
+    await onComplete();
   };
 
   return (
@@ -61,12 +54,12 @@ const VoicemailStep = ({
       <div className="space-y-6">
         <VoicemailHeader />
         
-        {error && (
+        {displayError && (
           <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>
-              {error}
+              {displayError}
               <p className="mt-2">Please try again or you can skip adding a voicemail for now.</p>
               <div className="mt-4 flex space-x-4">
                 <Button 
@@ -90,7 +83,7 @@ const VoicemailStep = ({
         
         <VoicemailUploadSection onVoicemailUpdate={setVoicemailFile} />
         
-        {!error && (
+        {!displayError && (
           <SubmitButtonSection 
             isSubmitting={isSubmitting || isUploading} 
             onBack={prevStep} 
