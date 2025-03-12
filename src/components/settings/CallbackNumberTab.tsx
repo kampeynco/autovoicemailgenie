@@ -58,11 +58,6 @@ const CallbackNumberTab = () => {
   // If phone number exists, show phone number details
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold text-[#073127]">Campaign Phone Number</h2>
-      <p className="text-gray-600">
-        This is the phone number that supporters will call to leave callbacks for your campaign.
-      </p>
-      
       <PhoneNumberCard phoneNumber={phoneNumber} />
       
       <div className="mt-6">
