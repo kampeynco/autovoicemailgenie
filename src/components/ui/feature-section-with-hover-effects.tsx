@@ -1,6 +1,7 @@
+
 import { cn } from "@/lib/utils";
 import {
-  IconChatterScatter,
+  IconChartBar,
   IconDeviceMobile,
   IconMicrophone,
   IconHash,
@@ -36,7 +37,7 @@ export function FeaturesSectionWithHoverEffects() {
       title: "Call Tracking and Monitoring",
       description:
         "Comprehensive tracking and monitoring of all callback activities in real-time.",
-      icon: <IconChatterScatter />,
+      icon: <IconChartBar />,
     },
     {
       title: "Mobile App (coming soon)",
