@@ -79,7 +79,7 @@ export const PricingPlans = () => {
               className="w-full bg-[#004838] hover:bg-[#003026]"
               onClick={() => handleSubscribe(plan.priceId)}
             >
-              Subscribe
+              Get Started
             </Button>
           </CardFooter>
         </Card>
