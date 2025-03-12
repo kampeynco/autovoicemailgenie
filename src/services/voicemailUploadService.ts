@@ -7,21 +7,6 @@ const MAX_UPLOAD_RETRIES = 3;
 export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
   console.log("Starting voicemail upload process");
   
-  // Check if the voicemails bucket exists
-  const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
-  
-  if (bucketError) {
-    console.error("Error checking buckets:", bucketError);
-    throw new Error(`Failed to check storage buckets: ${bucketError.message}`);
-  }
-  
-  const voicemailsBucketExists = buckets?.some(bucket => bucket.name === 'voicemails');
-  
-  if (!voicemailsBucketExists) {
-    console.log("Voicemails bucket doesn't exist");
-    throw new Error("The voicemails storage bucket doesn't exist. Please contact support.");
-  }
-  
   // Generate a unique filename with proper extension
   const fileExtension = voicemailFile.name.split('.').pop() || 
                         (voicemailFile.type === 'audio/webm' ? 'webm' : 

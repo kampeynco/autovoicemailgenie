@@ -14,9 +14,15 @@ interface VoicemailStepProps {
   onComplete: () => Promise<void>;
   isSubmitting: boolean;
   error?: string | null;
+  onSkipVoicemail: () => Promise<void>;
 }
 
-const VoicemailStep = ({ onComplete, isSubmitting, error }: VoicemailStepProps) => {
+const VoicemailStep = ({ 
+  onComplete, 
+  isSubmitting, 
+  error, 
+  onSkipVoicemail 
+}: VoicemailStepProps) => {
   const { updateData, prevStep } = useSignUp();
   const { toast } = useToast();
   const [voicemailFile, setVoicemailFile] = useState<File | null>(null);
@@ -50,11 +56,6 @@ const VoicemailStep = ({ onComplete, isSubmitting, error }: VoicemailStepProps) 
     }
   };
 
-  const handleSkipVoicemail = async () => {
-    updateData({ voicemailFile: null });
-    await onComplete();
-  };
-
   return (
     <form onSubmit={handleSubmit}>
       <div className="space-y-6">
@@ -71,7 +72,7 @@ const VoicemailStep = ({ onComplete, isSubmitting, error }: VoicemailStepProps) 
                 <Button 
                   type="button" 
                   variant="outline" 
-                  onClick={handleSkipVoicemail}
+                  onClick={onSkipVoicemail}
                   disabled={isSubmitting || isUploading}
                 >
                   Skip for now

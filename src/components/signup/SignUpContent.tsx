@@ -16,6 +16,7 @@ const SignUpContent = () => {
   const { data, currentStep, resetData } = useSignUp();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [voicemailError, setVoicemailError] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -26,70 +27,109 @@ const SignUpContent = () => {
     { id: 3, name: "Voicemail" }
   ];
 
+  // Create user account and committee
+  const createUserAndCommittee = async () => {
+    // 1. Register user first
+    const { user: newUser, error } = await signUp(data.email, data.password);
+    if (error) throw error;
+    if (!newUser) throw new Error("Failed to create user account");
+    
+    setUser(newUser);
+
+    // 2. Create committee record
+    const committeeData = {
+      user_id: newUser.id,
+      type: data.committeeType,
+      organization_name: data.committeeType === "organization" ? data.organizationName : null,
+      candidate_first_name: data.committeeType === "candidate" ? data.candidateFirstName : null,
+      candidate_middle_initial: data.committeeType === "candidate" ? data.candidateMiddleInitial : null,
+      candidate_last_name: data.committeeType === "candidate" ? data.candidateLastName : null,
+      candidate_suffix: data.committeeType === "candidate" ? data.candidateSuffix : null
+    };
+    
+    const { error: committeeError } = await supabase.from("committees").insert(committeeData);
+    if (committeeError) throw committeeError;
+    
+    return newUser;
+  };
+
+  // Handle uploading the voicemail
+  const handleVoicemailUpload = async (userId: string) => {
+    if (!data.voicemailFile) return;
+    
+    try {
+      await uploadVoicemail(userId, data.voicemailFile);
+      return true;
+    } catch (error: any) {
+      console.error("Error with voicemail upload:", error);
+      setVoicemailError(error.message || "Failed to upload voicemail");
+      return false;
+    }
+  };
+
+  // Complete the signup and redirect
+  const finalizeSignup = () => {
+    // Reset sign up data
+    resetData();
+
+    // Show success message
+    toast({
+      title: "Success!",
+      description: "Your account has been created successfully. You can now sign in."
+    });
+
+    // Redirect to sign in
+    navigate("/auth/signin");
+  };
+
   // Handle the final step (complete sign up)
   const handleComplete = async () => {
     setIsSubmitting(true);
     setVoicemailError(null);
     
     try {
-      // 1. Register user first
-      const { user, error } = await signUp(data.email, data.password);
-      if (error) throw error;
-      if (!user) throw new Error("Failed to create user account");
-
-      // 2. Create committee record
-      const committeeData = {
-        user_id: user.id,
-        type: data.committeeType,
-        organization_name: data.committeeType === "organization" ? data.organizationName : null,
-        candidate_first_name: data.committeeType === "candidate" ? data.candidateFirstName : null,
-        candidate_middle_initial: data.committeeType === "candidate" ? data.candidateMiddleInitial : null,
-        candidate_last_name: data.committeeType === "candidate" ? data.candidateLastName : null,
-        candidate_suffix: data.committeeType === "candidate" ? data.candidateSuffix : null
-      };
+      // First create the user account and committee
+      const newUser = await createUserAndCommittee();
       
-      const { error: committeeError } = await supabase.from("committees").insert(committeeData);
-      if (committeeError) throw committeeError;
-
-      // 3. Upload the voicemail file
-      let voicemailUploaded = false;
+      // Then try to upload the voicemail
       if (data.voicemailFile) {
-        try {
-          const voicemailPath = await uploadVoicemail(user.id, data.voicemailFile);
-          voicemailUploaded = true;
-          console.log("Voicemail uploaded successfully:", voicemailPath);
-        } catch (storageError: any) {
-          console.error("Error with voicemail upload:", storageError);
-          setVoicemailError(storageError.message || "Failed to upload voicemail");
-          
-          // We don't throw the error here to prevent complete signup failure
-          // But we also don't reset data or redirect until the voicemail is uploaded or explicitly skipped
+        const voicemailUploaded = await handleVoicemailUpload(newUser.id);
+        
+        if (!voicemailUploaded) {
+          // If voicemail upload failed, we'll stay on the current step to allow retry
           setIsSubmitting(false);
-          toast({
-            title: "Voicemail Upload Failed",
-            description: "There was an issue with the voicemail upload. Please try again or choose to skip.",
-            variant: "destructive"
-          });
-          
-          // Early return - don't reset data or redirect
           return;
         }
       }
-
-      // Only reset data and redirect if there was no voicemail error or if the voicemail was uploaded successfully
-      // Reset sign up data
-      resetData();
-
-      // Show success message
-      toast({
-        title: "Success!",
-        description: "Your account has been created successfully. You can now sign in."
-      });
-
-      // Redirect to sign in
-      navigate("/auth/signin");
+      
+      // If everything succeeds or we didn't need a voicemail, finalize the signup
+      finalizeSignup();
     } catch (error: any) {
       console.error("Sign up process error:", error);
+      setIsSubmitting(false);
+      toast({
+        title: "Sign Up Failed",
+        description: error.message || "An error occurred during the sign up process",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle skipping the voicemail step
+  const handleSkipVoicemail = async () => {
+    setIsSubmitting(true);
+    
+    try {
+      // If we already created a user in a previous attempt
+      if (user) {
+        finalizeSignup();
+      } else {
+        // Create user and committee, then finalize
+        await createUserAndCommittee();
+        finalizeSignup();
+      }
+    } catch (error: any) {
+      console.error("Error when skipping voicemail:", error);
       setIsSubmitting(false);
       toast({
         title: "Sign Up Failed",
@@ -126,6 +166,7 @@ const SignUpContent = () => {
                 onComplete={handleComplete} 
                 isSubmitting={isSubmitting}
                 error={voicemailError}
+                onSkipVoicemail={handleSkipVoicemail}
               />
             )}
           </div>
