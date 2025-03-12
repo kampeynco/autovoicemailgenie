@@ -8,7 +8,7 @@ import {
   IconMicrophone,
   IconPhone,
   IconTrendingUp,
-  IconSend,
+  IconCalendarSync,
 } from "@tabler/icons-react";
 
 export function FeaturesSectionWithHoverEffects() {
@@ -17,7 +17,7 @@ export function FeaturesSectionWithHoverEffects() {
       title:"Set-and-forget\" system",
       description:
         "Schedule recurring voicemail campaigns for political fundraising with minimal effort.",
-      icon: <IconSend />,
+      icon: <IconCalendarSync />,
     },
     {
       title: "Higher response rates",
