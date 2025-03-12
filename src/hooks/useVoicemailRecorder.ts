@@ -97,9 +97,11 @@ export const useVoicemailRecorder = () => {
     setRecordingProgress(0);
   };
 
-  // Function to update the SignUp context with recorded blob
-  const updateData = (data: { recordedBlob: Blob | null }) => {
-    updateSignUpData(data);
+  // Update the signature to match the expected usage
+  const updateData = () => {
+    if (recordedBlob) {
+      updateSignUpData({ recordedBlob });
+    }
   };
 
   return {

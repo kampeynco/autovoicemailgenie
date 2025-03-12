@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import RecordingUI from "../RecordingUI";
 import FileUploadUI from "../FileUploadUI";
@@ -50,7 +51,7 @@ const VoicemailUploadSection = ({ onVoicemailUpdate }: VoicemailUploadSectionPro
         type: recordedBlob.type
       });
       onVoicemailUpdate(file);
-      updateData({ recordedBlob });
+      updateData(); // Call updateData with no arguments
     }
   };
 
