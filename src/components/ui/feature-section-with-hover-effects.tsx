@@ -14,7 +14,7 @@ import {
 export function FeaturesSectionWithHoverEffects() {
   const features = [
     {
-      title: "Simple \"set-and-forget\" system",
+      title:"Set-and-forget\" system",
       description:
         "Schedule recurring voicemail campaigns for political fundraising with minimal effort.",
       icon: <IconSend />,
@@ -39,7 +39,7 @@ export function FeaturesSectionWithHoverEffects() {
       title: "Call Tracking and Monitoring",
       description:
         "Comprehensive tracking and monitoring of all callback activities in real-time.",
-      icon: <IconChartBarOff />,
+      icon: <IconChartBar />,
     },
     {
       title: "Mobile App (coming soon)",
