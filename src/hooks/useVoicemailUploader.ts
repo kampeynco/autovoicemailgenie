@@ -22,12 +22,30 @@ export const useVoicemailUploader = () => {
       return null;
     }
 
+    if (!voicemailFile) {
+      const errorMsg = "No file selected for upload";
+      setUploadError(errorMsg);
+      toast({
+        title: "Upload Error",
+        description: errorMsg,
+        variant: "destructive"
+      });
+      return null;
+    }
+
     setIsUploading(true);
     setUploadError(null);
 
     try {
+      console.log("Uploading voicemail file:", voicemailFile.name);
       const filePath = await uploadVoicemail(user.id, voicemailFile);
+      
       setIsUploading(false);
+      toast({
+        title: "Upload Successful",
+        description: "Your voicemail has been uploaded successfully."
+      });
+      
       return filePath;
     } catch (error: any) {
       console.error("Voicemail upload error:", error);

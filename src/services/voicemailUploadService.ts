@@ -7,6 +7,17 @@ const MAX_UPLOAD_RETRIES = 3;
 export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
   console.log("Starting voicemail upload process");
   
+  // Validate inputs
+  if (!userId) {
+    console.error("Missing user ID for voicemail upload");
+    throw new Error("User ID is required for voicemail upload");
+  }
+  
+  if (!voicemailFile) {
+    console.error("Missing file for voicemail upload");
+    throw new Error("No voicemail file provided");
+  }
+  
   // Generate a unique filename with proper extension
   const fileExtension = voicemailFile.name.split('.').pop() || 
                         (voicemailFile.type === 'audio/webm' ? 'webm' : 
@@ -16,6 +27,15 @@ export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
   // Make sure user ID is included in the file path
   const fileName = `${userId}/voicemail_${Date.now()}.${fileExtension}`;
   console.log("Uploading file:", fileName, "Type:", voicemailFile.type, "Size:", voicemailFile.size);
+  
+  // Check if voicemails bucket exists
+  const { data: buckets } = await supabase.storage.listBuckets();
+  const voicemailsBucketExists = buckets?.some(bucket => bucket.name === 'voicemails');
+  
+  if (!voicemailsBucketExists) {
+    console.error("Voicemails bucket does not exist");
+    throw new Error("Storage is not properly configured. Please contact support.");
+  }
   
   // Implement retry logic for uploads
   let uploadError = null;
@@ -35,7 +55,7 @@ export const uploadVoicemail = async (userId: string, voicemailFile: File) => {
       uploadData = result.data;
       
       if (!uploadError) {
-        console.log(`Upload successful on attempt ${attempt}`);
+        console.log(`Upload successful on attempt ${attempt}`, uploadData);
         break;
       }
       

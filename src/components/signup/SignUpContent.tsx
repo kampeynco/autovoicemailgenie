@@ -35,6 +35,7 @@ const SignUpContent = () => {
     if (!newUser) throw new Error("Failed to create user account");
     
     setUser(newUser);
+    console.log("User created successfully:", newUser.id);
 
     // 2. Create committee record
     const committeeData = {
@@ -50,19 +51,34 @@ const SignUpContent = () => {
     const { error: committeeError } = await supabase.from("committees").insert(committeeData);
     if (committeeError) throw committeeError;
     
+    console.log("Committee created successfully for user:", newUser.id);
     return newUser;
   };
 
   // Handle uploading the voicemail
   const handleVoicemailUpload = async (userId: string) => {
-    if (!data.voicemailFile) return;
+    if (!data.voicemailFile) {
+      console.log("No voicemail file to upload");
+      return true; // Not an error if no file
+    }
     
     try {
-      await uploadVoicemail(userId, data.voicemailFile);
+      console.log("Starting voicemail upload for user:", userId, "File:", data.voicemailFile.name);
+      const filePath = await uploadVoicemail(userId, data.voicemailFile);
+      console.log("Voicemail uploaded successfully:", filePath);
+      toast({
+        title: "Voicemail Uploaded",
+        description: "Your voicemail greeting has been added to your account.",
+      });
       return true;
     } catch (error: any) {
       console.error("Error with voicemail upload:", error);
       setVoicemailError(error.message || "Failed to upload voicemail");
+      toast({
+        title: "Voicemail Upload Failed",
+        description: error.message || "There was a problem uploading your voicemail",
+        variant: "destructive"
+      });
       return false;
     }
   };
@@ -122,9 +138,11 @@ const SignUpContent = () => {
     try {
       // If we already created a user in a previous attempt
       if (user) {
+        console.log("Using existing user account to finalize signup (skipping voicemail)");
         finalizeSignup();
       } else {
         // Create user and committee, then finalize
+        console.log("Creating user account (skipping voicemail)");
         await createUserAndCommittee();
         finalizeSignup();
       }
