@@ -10,41 +10,25 @@ import CommitteeStep from "@/components/signup/CommitteeStep";
 import VoicemailStep from "@/components/signup/VoicemailStep";
 
 const SignUp = () => {
-  const {
-    signUp
-  } = useAuth();
-  const {
-    data,
-    currentStep,
-    resetData
-  } = useSignUp();
+  const { signUp } = useAuth();
+  const { data, currentStep, resetData } = useSignUp();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   // Steps indicator
-  const steps = [{
-    id: 1,
-    name: "Account"
-  }, {
-    id: 2,
-    name: "Committee"
-  }, {
-    id: 3,
-    name: "Voicemail"
-  }];
+  const steps = [
+    { id: 1, name: "Account" },
+    { id: 2, name: "Committee" },
+    { id: 3, name: "Voicemail" }
+  ];
 
   // Handle the final step (complete sign up)
   const handleComplete = async () => {
     setIsSubmitting(true);
     try {
       // 1. Register user first
-      const {
-        user,
-        error
-      } = await signUp(data.email, data.password);
+      const { user, error } = await signUp(data.email, data.password);
       if (error) throw error;
       if (!user) throw new Error("Failed to create user account");
 
@@ -58,23 +42,36 @@ const SignUp = () => {
         candidate_last_name: data.committeeType === "candidate" ? data.candidateLastName : null,
         candidate_suffix: data.committeeType === "candidate" ? data.candidateSuffix : null
       };
-      const {
-        error: committeeError
-      } = await supabase.from("committees").insert(committeeData);
+      
+      const { error: committeeError } = await supabase.from("committees").insert(committeeData);
       if (committeeError) throw committeeError;
 
       // 3. Upload the voicemail file only after user is created
       if (data.voicemailFile) {
         try {
+          console.log("Starting voicemail upload process");
+          
           // Check if the voicemails bucket exists
-          const { data: buckets } = await supabase.storage.listBuckets();
+          const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+          
+          if (bucketError) {
+            console.error("Error checking buckets:", bucketError);
+            throw new Error("Failed to check storage buckets");
+          }
+          
           const voicemailsBucketExists = buckets?.some(bucket => bucket.name === 'voicemails');
           
           if (!voicemailsBucketExists) {
+            console.log("Creating voicemails bucket");
             // Create the bucket if it doesn't exist
-            await supabase.storage.createBucket('voicemails', {
+            const { error: createBucketError } = await supabase.storage.createBucket('voicemails', {
               public: true,
             });
+            
+            if (createBucketError) {
+              console.error("Error creating bucket:", createBucketError);
+              throw new Error("Failed to create storage bucket");
+            }
           }
           
           // Generate a unique filename with proper extension
@@ -84,6 +81,7 @@ const SignUp = () => {
                                 data.voicemailFile.type === 'audio/wav' ? 'wav' : 'audio');
           
           const fileName = `${user.id}/voicemail_${Date.now()}.${fileExtension}`;
+          console.log("Uploading file:", fileName, "Type:", data.voicemailFile.type);
           
           // Upload to Supabase Storage with explicit options
           const {
@@ -98,29 +96,40 @@ const SignUp = () => {
             console.error("Storage upload error:", uploadError);
             throw uploadError;
           }
+          
+          console.log("File uploaded successfully");
 
           // Get the public URL
-          const {
-            data: pathData
-          } = supabase.storage.from('voicemails').getPublicUrl(fileName);
+          const { data: pathData } = supabase.storage.from('voicemails').getPublicUrl(fileName);
+          
+          if (!pathData || !pathData.publicUrl) {
+            console.error("Failed to get public URL");
+            throw new Error("Failed to get public URL for the voicemail");
+          }
+          
+          console.log("Public URL:", pathData.publicUrl);
 
           // 4. Create voicemail record with the file path
-          const {
-            error: voicemailError
-          } = await supabase.from("voicemails").insert({
+          const { error: voicemailError } = await supabase.from("voicemails").insert({
             user_id: user.id,
             file_path: pathData.publicUrl,
             name: "Default Voicemail",
             is_default: true
           });
           
-          if (voicemailError) throw voicemailError;
-        } catch (storageError) {
+          if (voicemailError) {
+            console.error("Voicemail record error:", voicemailError);
+            throw voicemailError;
+          }
+          
+          console.log("Voicemail record created successfully");
+          
+        } catch (storageError: any) {
           console.error("Error with storage or voicemail:", storageError);
           // Continue with sign up even if voicemail upload fails
           toast({
             title: "Voicemail Warning",
-            description: "Your account was created, but there was an issue with the voicemail. You can add it later in Settings.",
+            description: "Your account was created, but there was an issue with the voicemail: " + storageError.message,
             variant: "destructive"
           });
         }
@@ -211,4 +220,5 @@ const SignUp = () => {
       </div>
     </div>;
 };
+
 export default SignUp;

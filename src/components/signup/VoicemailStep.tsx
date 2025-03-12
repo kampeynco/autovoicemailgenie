@@ -64,6 +64,11 @@ const VoicemailStep = ({
       
       if (listError) {
         console.error("Error checking buckets:", listError);
+        toast({
+          title: "Storage Error",
+          description: "Could not check storage buckets. Please try again.",
+          variant: "destructive"
+        });
         return false;
       }
 
@@ -77,6 +82,11 @@ const VoicemailStep = ({
         
         if (createError) {
           console.error("Error creating voicemails bucket:", createError);
+          toast({
+            title: "Storage Error",
+            description: "Could not create storage bucket. Please try again.",
+            variant: "destructive"
+          });
           return false;
         }
         
@@ -86,6 +96,11 @@ const VoicemailStep = ({
       return true;
     } catch (error) {
       console.error("Bucket check/creation error:", error);
+      toast({
+        title: "Storage Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
       return false;
     }
   };
@@ -105,6 +120,9 @@ const VoicemailStep = ({
     
     try {
       setIsUploading(true);
+
+      // Create bucket if needed
+      await ensureVoicemailsBucketExists();
 
       // Prepare the file to upload, but don't upload yet
       const fileToUpload = uploadedFile || new File([recordedBlob!], 'voicemail.webm', {
