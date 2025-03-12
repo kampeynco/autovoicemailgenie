@@ -7,7 +7,7 @@ import {
   IconDeviceMobile,
   IconMicrophone,
   IconPhone,
-  IconChartBarOff,
+  IconTrendingUp,
   IconSend,
 } from "@tabler/icons-react";
 
@@ -23,7 +23,7 @@ export function FeaturesSectionWithHoverEffects() {
       title: "Higher response rates",
       description:
         "Get significantly better response rates compared to traditional call time methods.",
-      icon: <IconChartBar />,
+      icon: <IconTrendingUp />,
     },
     {
       title: "Dedicated phone number",
