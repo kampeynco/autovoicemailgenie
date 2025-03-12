@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import RecordingUI from "../RecordingUI";
 import FileUploadUI from "../FileUploadUI";
@@ -21,7 +20,8 @@ const VoicemailUploadSection = ({ onVoicemailUpdate }: VoicemailUploadSectionPro
     MAX_RECORDING_TIME,
     startRecording,
     stopRecording,
-    clearRecording
+    clearRecording,
+    updateData
   } = useVoicemailRecorder();
 
   const handleFileSelected = (file: File) => {
@@ -50,6 +50,7 @@ const VoicemailUploadSection = ({ onVoicemailUpdate }: VoicemailUploadSectionPro
         type: recordedBlob.type
       });
       onVoicemailUpdate(file);
+      updateData({ recordedBlob });
     }
   };
 

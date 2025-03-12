@@ -62,21 +62,25 @@ export const useSignUpSteps = () => {
 
   // Handle uploading the voicemail
   const handleVoicemailUpload = async () => {
-    if (!data.voicemailFile || !data.userId) {
-      console.log("No voicemail file to upload or missing user ID");
+    if (!data.userId) {
+      console.log("Missing user ID");
+      return false;
+    }
+
+    if (!data.voicemailFile && !data.recordedBlob) {
+      console.log("No voicemail file or recording to upload");
       return true; // Not an error if no file
     }
     
     try {
-      console.log("Starting voicemail upload for user:", data.userId, "File:", data.voicemailFile.name);
+      console.log("Starting voicemail upload for user:", data.userId);
       
-      // Use the saveVoicemail function
       await saveVoicemail({
         userId: data.userId,
         name: "Default Voicemail",
         description: null,
         uploadedFile: data.voicemailFile,
-        recordedBlob: null,
+        recordedBlob: data.recordedBlob || null,
       });
       
       console.log("Voicemail uploaded successfully");

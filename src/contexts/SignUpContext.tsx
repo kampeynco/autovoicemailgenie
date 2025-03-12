@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState } from "react";
 
 type CommitteeType = "organization" | "candidate";
@@ -19,6 +18,7 @@ interface SignUpData {
   // Step 3: Voicemail
   voicemailPath: string;
   voicemailFile: File | null;
+  recordedBlob: Blob | null;
   
   // User account info
   userId: string | null;
@@ -45,6 +45,7 @@ const defaultSignUpData: SignUpData = {
   candidateSuffix: "none",
   voicemailPath: "",
   voicemailFile: null,
+  recordedBlob: null,
   userId: null
 };
 
